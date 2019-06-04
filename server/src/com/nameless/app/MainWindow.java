@@ -3,7 +3,7 @@ package com.nameless.app;
 import javax.swing.*;
 import java.awt.*;
 
-public class MainWindow implements Window{
+public class MainWindow extends Thread implements Window{
 	private static JFrame frame;
 	private static JPanel panel;
 
@@ -27,9 +27,14 @@ public class MainWindow implements Window{
 		panel.setLayout(null);
 	}
 
+	@Override
+	public void setField() {
+
+	}
+
 
 	private void init(String name, Integer width, Integer height) {
-		setDecoration();
+//		setDecoration();
 		frame = new JFrame(name);
 		frame.setPreferredSize(new Dimension(width, height));
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

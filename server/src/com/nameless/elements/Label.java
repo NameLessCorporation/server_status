@@ -1,4 +1,4 @@
-package com.company.main.core.elements;
+package com.nameless.elements;
 
 import javax.swing.*;
 import java.awt.*;

@@ -1,11 +1,11 @@
 package com.nameless;
 
-import com.nameless.app.MainWindow;
+import com.nameless.app.*;
 
 public class Main {
 
 	public static void main(String[] args) {
-		MainWindow mw = new MainWindow("Server status - NameLess", 500, 500);
+		SetupWindow mw = new SetupWindow("Server status - NameLess", 195, 150, false);
 	}
 
 }
