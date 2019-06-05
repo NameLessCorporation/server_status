@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import github.nameless.elements.Field;
@@ -23,6 +24,7 @@ public class ConnectWindow implements Window {
 	private Field portField;
 	private Field userField;
 	private Field passField;
+	Server server = new Server();
 
 
 	public ConnectWindow(String name, int width, int height) {
@@ -99,24 +101,26 @@ public class ConnectWindow implements Window {
 			request.put("type", "connect");
 			request.put("user", user);
 			request.put("pass", pass);
-			sendRequest(request, ip, port);
+			try {
+				sendRequest(request, ip, port);
+				frame.setVisible(false);
+				server.setFrame(new MainWindow("NameLess Server Status - Client", 900, 600, ip, port, user));
+
+			} catch (Exception e) {
+				JOptionPane.showMessageDialog(frame, e.toString(), "Error", JOptionPane.ERROR_MESSAGE);
+			}
+		} else {
+			JOptionPane.showMessageDialog(frame, "Some fields are empty!", "Error", JOptionPane.ERROR_MESSAGE);
 		}
 	}
 
-	public static void sendRequest(HashMap<String, String> pc, String url, String port) throws InterruptedException {
-		try {
-			url = "http://" + url + ":" + port + "?";
-			for (String key : pc.keySet()) {
-				url += key + "=" + pc.get(key) + "&";
-			}
-			URL server = new URL(url);
-			InputStream is = server.openStream();
-			//System.out.println(pc.getNamePackage());
-		} catch (Exception e) {
-			System.out.print("Host not found!\n");
-			TimeUnit.SECONDS.sleep(5);
-
+	public static void sendRequest(HashMap<String, String> pc, String url, String port) throws Exception {
+		url = "http://" + url + ":" + port + "?";
+		for (String key : pc.keySet()) {
+			url += key + "=" + pc.get(key) + "&";
 		}
+		URL server = new URL(url);
+		InputStream is = server.openStream();
 	}
 
 	private void init(String name, int width, int height) {
@@ -133,6 +137,7 @@ public class ConnectWindow implements Window {
 		frame.pack();
 		frame.setResizable(false);
 		frame.setVisible(true);
+		server.run();
 	}
 
 }
