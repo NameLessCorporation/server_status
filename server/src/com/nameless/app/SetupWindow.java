@@ -81,6 +81,7 @@ public class SetupWindow implements Window {
 	}
 
 	private void init(String name, Integer width, Integer height) {
+//		Server server = new Server(portServer, passwordServer);
 		setDecoration();
 		frame = new JFrame(name);
 		frame.setPreferredSize(new Dimension(width, height));

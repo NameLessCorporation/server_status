@@ -1,5 +1,6 @@
 package com.nameless;
 
+import javax.swing.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -14,6 +15,7 @@ import java.util.HashMap;
 public class Server {
 	private static HashMap<String, String> respons = new HashMap<String, String>();
 	private static ArrayList<String> users = new ArrayList();
+	private static Boolean shutdown = false;
 
 	public Server(String port, String password) throws IOException {
 		startServer(port, password);
@@ -29,14 +31,13 @@ public class Server {
 			e.printStackTrace();
 		}
 			System.out.println("Listening for connection on port 8080 ....");
-			while (true) {
+			while (!shutdown) {
 				try (Socket socket = server.accept()){
 					BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 					String line = reader.readLine().replace("GET /?", "")
 							.replace(" HTTP/1.1", "");
 					if (!line.equals("GET /favicon.ico")){
-						parser(line);
-						checkPassword(password);
+						parser(line, server, password);
 						System.out.println(line);
 					}
 					String httpResponse = "HTTP/1.1 200 OK\r\n\r\n" + "Server started";
@@ -49,7 +50,7 @@ public class Server {
 		}
 	}
 
-	public static void parser(String request) {
+	public static void parser(String request, ServerSocket server, String password) throws IOException {
 		String[] dataArray = request.split("&");
 		String[] data;
 		for (String str: dataArray) {
@@ -59,14 +60,33 @@ public class Server {
 		for (String k: respons.keySet()) {
 			System.out.println(respons.get(k));
 		}
+		checkPassword(password);
+		checkUser(server);
 	}
 
-	public static void checkPassword(String password) {
+	public static void checkUser(ServerSocket server) throws IOException {
+		String user = respons.get("user");
+		if (users.contains(user)) {
+			stopServer(server);
+		}
+	}
+
+	public static void checkPassword(String password)  {
 		String pass = respons.get("pass");
 		String user = respons.get("user");
 		String type = respons.get("type");
 		if (type.equals("connect") && pass.equals(password)) {
 			users.add(user);
+			System.out.println(users);
 		}
+	}
+
+	public static void stopServer(ServerSocket server) throws IOException {
+		String stop = respons.get("type");
+		if (stop.equals("stopServer")) {
+			server.close();
+			shutdown = true;
+		}
+		System.out.println(stop);
 	}
 }
