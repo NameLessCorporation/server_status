@@ -4,20 +4,14 @@ import javax.swing.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Objects;
 
 public class Server extends Thread {
 
-	int port;
-	MainWindow frame;
-
-	public Server() {
-		this.port = port;
-	}
+	private MainWindow frame;
 
 	@Override
     public void run() {
@@ -25,23 +19,23 @@ public class Server extends Thread {
         try {
             server = new ServerSocket(9090);
         } catch (IOException e) {
-            e.printStackTrace();
+			JOptionPane.showMessageDialog(null, e.toString(), "Error", JOptionPane.ERROR_MESSAGE);
         }
-        System.out.println("Listening for connection on port 8080 ....");
+        System.out.println("Listening for connection on port 9090 ....");
         while (true) {
-            try (Socket socket = server.accept()){
-				System.out.println("adsdasd");
+            try (Socket socket = Objects.requireNonNull(server).accept()){
                 BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 String line = reader.readLine().replace("GET /?", "")
                                                         .replace(" HTTP/1.1", "");
 				if (!line.equals("GET /favicon.ico")){
-					getData(line);
-					//System.out.println(pc);
+					HashMap<String, String> data = getData(line);
+					for (String key : data.keySet()) {
+						System.out.println(key + ":" + data.get(key));
+					}
+					checkResponse(data);
 				}
                 String httpResponse = "HTTP/1.1 200 OK\r\n\r\n" + "Server started";
                 socket.getOutputStream().write(httpResponse.getBytes("UTF-8"));
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (Exception e) {
@@ -50,23 +44,45 @@ public class Server extends Thread {
         }
     }
 
+    public void checkResponse(HashMap<String, String> data) {
+		String type = data.get("type");
+		if (! type.isEmpty()) {
+			switch (type) {
+				case "cpu": {
+					frame.cpuInfoLabel.setText("CPU: " + data.get("data"));
+					break;
+				}
+				case "ram": {
+					frame.ramInfoLabel.setText("RAM: " + data.get("data"));
+					break;
+				}
+				case "net": {
+					frame.netInfoLabel.setText("Internet: " + data.get("data"));
+					break;
+				}
+				case "command": {
+					execute(data.get("command"));
+				}
+			}
+		}
+	}
+
+	public void execute(String command) {
+
+	}
+
 	public void setFrame(MainWindow frame) {
 		this.frame = frame;
 	}
 
-	public static void getData(String request) {
-		String[] dataArray = request.split("&");
+	public HashMap<String, String> getData(String request) {
+		String[] dataArray = request.split("& ");
 		HashMap<String, String> response = new HashMap<>();
 		for (int i = 0; i < dataArray.length; i++) {
 			String[] data = dataArray[i].split("=");
 			response.put(data[0], data[1]);
 		}
+		return response;
 	}
-
-	public static void main(String[] args) {
-		//new Server();
-	}
-
-
 
 }

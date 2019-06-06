@@ -2,13 +2,9 @@ package github.nameless.app;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.HashMap;
-import java.util.Random;
-import java.util.concurrent.TimeUnit;
 
 import github.nameless.elements.Button;
 import github.nameless.elements.Label;
@@ -16,10 +12,10 @@ import github.nameless.elements.Label;
 public class MainWindow implements Window{
 	private static JFrame frame;
 	private static JPanel panel;
-	private Label cpuInfoLabel;
-	private Label ramInfoLabel;
-	private Label netInfoLabel;
-	String host, port, user;
+	public Label cpuInfoLabel;
+	public Label ramInfoLabel;
+	public Label netInfoLabel;
+	private String host, port, user;
 
 	private HashMap<String, String> disconnectRequest = new HashMap<>();
 	private HashMap<String, String> stopRequest = new HashMap<>();
@@ -34,7 +30,7 @@ public class MainWindow implements Window{
 	@Override
 	public void setLabel() {
 		Label ipLabel = new Label(10, 10, "Server address: " + host);
-		Label userLabel = new Label(10, 35, "You loggined as: " + user);
+		Label userLabel = new Label(10, 35, "Your username as: " + user);
 
 		cpuInfoLabel = new Label(250, 10, "CPU: ");
 		ramInfoLabel = new Label(250, 35, "RAM:");
