@@ -29,6 +29,7 @@ public class Server extends Thread {
                                                         .replace(" HTTP/1.1", "");
 				if (!line.equals("GET /favicon.ico")){
 					HashMap<String, String> data = getData(line);
+
 					for (String key : data.keySet()) {
 						System.out.println(key + ":" + data.get(key));
 					}
@@ -39,14 +40,14 @@ public class Server extends Thread {
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (Exception e) {
-				System.out.println(e.toString());
+				e.printStackTrace();
 			}
         }
     }
 
     public void checkResponse(HashMap<String, String> data) {
 		String type = data.get("type");
-		if (! type.isEmpty()) {
+		if (!type.isEmpty()) {
 			switch (type) {
 				case "cpu": {
 					frame.cpuInfoLabel.setText("CPU: " + data.get("data"));
@@ -61,14 +62,18 @@ public class Server extends Thread {
 					break;
 				}
 				case "command": {
-					execute(data.get("command"));
+					execute(data);
 				}
 			}
 		}
 	}
 
-	public void execute(String command) {
-
+	public void execute(HashMap<String, String> data) {
+		String command = data.get("command");
+		String arg = data.get("args");
+		if (command.equals("showNotification")) {
+			Notifications.showInfoNotification("Information from server", arg);
+		}
 	}
 
 	public void setFrame(MainWindow frame) {
@@ -76,7 +81,7 @@ public class Server extends Thread {
 	}
 
 	public HashMap<String, String> getData(String request) {
-		String[] dataArray = request.split("& ");
+		String[] dataArray = request.split("&");
 		HashMap<String, String> response = new HashMap<>();
 		for (int i = 0; i < dataArray.length; i++) {
 			String[] data = dataArray[i].split("=");

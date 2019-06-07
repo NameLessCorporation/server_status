@@ -110,7 +110,8 @@ public class ConnectWindow implements Window {
 				JOptionPane.showMessageDialog(frame, e.toString(), "Error", JOptionPane.ERROR_MESSAGE);
 			}
 		} else {
-			JOptionPane.showMessageDialog(frame, "Some fields are empty!", "Error", JOptionPane.ERROR_MESSAGE);
+//			JOptionPane.showMessageDialog(frame, "Some fields are empty!", "Error", JOptionPane.ERROR_MESSAGE);
+			Notifications.showErrorNotification("Error", "Some fields are empty!");
 		}
 	}
 
