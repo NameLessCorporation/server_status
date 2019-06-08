@@ -66,7 +66,7 @@ public class MainWindow implements Window{
 
 	}
 
-	public static void sendRequest(HashMap<String, String> pc, String url, String port) {
+	private static void sendRequest(HashMap<String, String> pc, String url, String port) {
 		try {
 			url = "http://" + url + ":" + port + "?";
 			for (String key : pc.keySet()) {
@@ -75,7 +75,7 @@ public class MainWindow implements Window{
 			URL server = new URL(url);
 			InputStream is = server.openStream();
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(frame, e.toString(), "Error", JOptionPane.ERROR_MESSAGE);
+			Notifications.showErrorNotification("Error", e.toString());
 		}
 	}
 

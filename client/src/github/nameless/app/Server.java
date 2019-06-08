@@ -1,6 +1,5 @@
 package github.nameless.app;
 
-import javax.swing.*;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -19,7 +18,7 @@ public class Server extends Thread {
         try {
             server = new ServerSocket(9090);
         } catch (IOException e) {
-			JOptionPane.showMessageDialog(null, e.toString(), "Error", JOptionPane.ERROR_MESSAGE);
+			Notifications.showErrorNotification("Error", e.getMessage());
         }
         System.out.println("Listening for connection on port 9090 ....");
         while (true) {
@@ -37,12 +36,10 @@ public class Server extends Thread {
 				}
                 String httpResponse = "HTTP/1.1 200 OK\r\n\r\n" + "Server started";
                 socket.getOutputStream().write(httpResponse.getBytes("UTF-8"));
-            } catch (IOException e) {
-                e.printStackTrace();
             } catch (Exception e) {
-				e.printStackTrace();
-			}
-        }
+                Notifications.showErrorNotification("Error", e.toString());
+            }
+		}
     }
 
     public void checkResponse(HashMap<String, String> data) {
