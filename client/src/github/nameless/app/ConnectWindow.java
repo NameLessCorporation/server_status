@@ -2,13 +2,12 @@ package github.nameless.app;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.IOException;
-import java.io.InputStream;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.io.*;
 import java.net.URL;
 import java.util.HashMap;
-import java.util.concurrent.TimeUnit;
+import java.util.Scanner;
 
 import github.nameless.elements.Field;
 import github.nameless.elements.Label;
@@ -17,12 +16,13 @@ import github.nameless.elements.Button;
 public class ConnectWindow implements Window {
 	private static JFrame frame;
 	private static JPanel panel;
-	private String[] connections;
+	private DefaultListModel<String> connections;
 	private JList list;
 	private Field ipField;
 	private Field portField;
 	private Field userField;
 	private Field passField;
+	private Server server = new Server();
 
 
 	public ConnectWindow(String name, int width, int height) {
@@ -50,13 +50,9 @@ public class ConnectWindow implements Window {
 		Button saveButton = new Button(292, 170, 100, 25, "Save");
 		Button deleteButton = new Button(407, 170, 100, 25, "Delete");
 
-		connectButton.addActionListener(e -> {
-			try {
-				connect();
-			} catch (InterruptedException ex) {
-				ex.printStackTrace();
-			}
-		});
+		connectButton.addActionListener(e -> connect());
+		saveButton.addActionListener(e -> saveConnection());
+		deleteButton.addActionListener(e -> deleteConnection((String) list.getSelectedValue()));
 
 		panel.add(connectButton);
 		panel.add(saveButton);
@@ -86,10 +82,96 @@ public class ConnectWindow implements Window {
 		list = new JList();
 		list.setBounds(300, 62, 200, 92);
 
+		list.addMouseListener(new MouseAdapter(){
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if (!connections.isEmpty()) {
+					setConnection((String) list.getSelectedValue());
+				}
+			}
+		});
+
 		panel.add(list);
 	}
 
-	private void connect() throws InterruptedException {
+	private void getConnections() {
+		connections = new DefaultListModel<>();
+		File file = new File("connections");
+		try {
+			Scanner sc = new Scanner(file);
+			while (sc.hasNextLine()) {
+				String connection = sc.nextLine();
+				connections.addElement(connection);
+			}
+			if (!connections.isEmpty()) {
+				list.setModel(connections);
+			}
+		} catch (FileNotFoundException e) {
+			try {
+				FileWriter writer = new FileWriter("connections");
+				writer.write("");
+				writer.flush();
+				writer.close();
+			} catch (IOException e1) {
+				Notifications.showErrorNotification("Error", e1.toString());
+			}
+		}
+	}
+
+	private void saveConnection() {
+		String ip = ipField.getText().trim();
+		String port = portField.getText().trim();
+		String user = userField.getText().trim();
+		String pass = passField.getText().trim();
+		if (!ip.isEmpty() && !user.isEmpty() && !pass.isEmpty() && !port.isEmpty()) {
+			if (!connections.contains(ip + ":" + port + ":" + user + ":" + pass)) {
+				try {
+					BufferedWriter out = new BufferedWriter(new FileWriter("connections", true));
+					out.write(ip + ":" + port + ":" + user + ":" + pass + "\n");
+					out.close();
+				}
+				catch (IOException e) {
+					System.out.println("Exception Occurred" + e);
+				}
+				getConnections();
+			}
+		} else {
+			Notifications.showErrorNotification("Error", "Some fields are empty!");
+		}
+	}
+
+	private void setConnection(String connection) {
+		String[] connectionArray = connection.split(":");
+		ipField.setText(connectionArray[0]);
+		portField.setText(connectionArray[1]);
+		userField.setText(connectionArray[2]);
+		passField.setText(connectionArray[3]);
+	}
+
+	private void deleteConnection(String connection) {
+		if (connection != null) {
+			int index;
+			for (index = 0; index < connections.size(); index++) {
+				if (connections.get(index).equals(connection)) {
+					break;
+				}
+			}
+			connections.remove(index);
+			try {
+				BufferedWriter out = new BufferedWriter(new FileWriter("connections"));
+				for (int i = 0; i < connections.size(); i++) {
+					out.write(connections.get(i) + "\n");
+				}
+				out.close();
+			} catch (IOException e) {
+				Notifications.showErrorNotification("Error", e.toString());
+			}
+		} else {
+			Notifications.showWarningNotification("Warning", "Please select connection from list");
+		}
+	}
+
+	private void connect() {
 		String ip = ipField.getText().trim();
 		String port = portField.getText().trim();
 		String user = userField.getText().trim();
@@ -99,24 +181,26 @@ public class ConnectWindow implements Window {
 			request.put("type", "connect");
 			request.put("user", user);
 			request.put("pass", pass);
-			sendRequest(request, ip, port);
+			try {
+				sendRequest(request, ip, port);
+				frame.setVisible(false);
+				server.setFrame(new MainWindow("NameLess Server Status - Client", 900, 600, ip, port, user));
+
+			} catch (Exception e) {
+				Notifications.showErrorNotification("Error", e.toString());
+			}
+		} else {
+			Notifications.showErrorNotification("Error", "Some fields are empty!");
 		}
 	}
 
-	public static void sendRequest(HashMap<String, String> pc, String url, String port) throws InterruptedException {
-		try {
-			url = "http://" + url + ":" + port + "?";
-			for (String key : pc.keySet()) {
-				url += key + "=" + pc.get(key) + "&";
-			}
-			URL server = new URL(url);
-			InputStream is = server.openStream();
-			//System.out.println(pc.getNamePackage());
-		} catch (Exception e) {
-			System.out.print("Host not found!\n");
-			TimeUnit.SECONDS.sleep(5);
-
+	private static void sendRequest(HashMap<String, String> pc, String url, String port) throws Exception {
+		url = "http://" + url + ":" + port + "?";
+		for (String key : pc.keySet()) {
+			url += key + "=" + pc.get(key) + "&";
 		}
+		URL server = new URL(url);
+		InputStream is = server.openStream();
 	}
 
 	private void init(String name, int width, int height) {
@@ -128,11 +212,13 @@ public class ConnectWindow implements Window {
 		setLabel();
 		setField();
 		setList();
+		getConnections();
 		setButton();
 		frame.add(panel);
 		frame.pack();
 		frame.setResizable(false);
 		frame.setVisible(true);
+		server.run();
 	}
 
 }
