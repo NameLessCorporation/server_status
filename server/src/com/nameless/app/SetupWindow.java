@@ -1,6 +1,5 @@
 package com.nameless.app;
 
-import com.nameless.Server;
 import com.nameless.elements.Button;
 import com.nameless.elements.Field;
 import com.nameless.elements.Label;
@@ -12,20 +11,19 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 
 public class SetupWindow implements Window {
-	private static JFrame frame;
-	private static JPanel panel;
-	private static Field port, password;
+	private JFrame frame;
+	private JPanel panel;
+	private Field port, password;
 
 	public SetupWindow(String name, Integer width, Integer height, Boolean isEnter) {
 		init(name, width, height);
-		checkConnection(isEnter);
 	}
 
-	public void checkConnection(Boolean isEnter) {
+	public void checkConnection(Boolean isEnter, String portServer, String passwordServer) throws IOException {
 		if (isEnter) {
 			frame.setVisible(false);
-			MainWindow mw = new MainWindow("Server - NameLess", 900, 600);
-			mw.start();
+			MainWindow mw = new MainWindow("Server - NameLess",
+											900, 600, passwordServer, portServer);
 		}
 	}
 
@@ -63,9 +61,8 @@ public class SetupWindow implements Window {
 			public void actionPerformed(ActionEvent e) {
 				String portServer = port.getText();
 				String passwordServer = password.getText();
-				checkConnection(true);
 				try {
-					Server server = new Server(portServer, passwordServer);
+					checkConnection(true, portServer, passwordServer);
 				} catch (IOException ex) {
 					ex.printStackTrace();
 				}
@@ -81,7 +78,6 @@ public class SetupWindow implements Window {
 	}
 
 	private void init(String name, Integer width, Integer height) {
-//		Server server = new Server(portServer, passwordServer);
 		setDecoration();
 		frame = new JFrame(name);
 		frame.setPreferredSize(new Dimension(width, height));

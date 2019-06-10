@@ -1,6 +1,7 @@
 package com.nameless;
 
-import javax.swing.*;
+import com.nameless.app.MainWindow;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -12,10 +13,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 
-public class Server {
-	private static HashMap<String, String> respons = new HashMap<String, String>();
-	private static ArrayList<String> users = new ArrayList();
-	private static Boolean shutdown = false;
+public class Server extends Thread {
+	private HashMap<String, String> respons = new HashMap<String, String>();
+	private ArrayList<String> users = new ArrayList();
+	private Boolean shutdown = false;
 
 	public Server(String port, String password) throws IOException {
 		startServer(port, password);
@@ -50,7 +51,7 @@ public class Server {
 		}
 	}
 
-	public static void parser(String request, ServerSocket server, String password) throws IOException {
+	public void parser(String request, ServerSocket server, String password) throws IOException {
 		String[] dataArray = request.split("&");
 		String[] data;
 		for (String str: dataArray) {
@@ -64,14 +65,14 @@ public class Server {
 		checkUser(server);
 	}
 
-	public static void checkUser(ServerSocket server) throws IOException {
+	public void checkUser(ServerSocket server) throws IOException {
 		String user = respons.get("user");
 		if (users.contains(user)) {
 			stopServer(server);
 		}
 	}
 
-	public static void checkPassword(String password)  {
+	public void checkPassword(String password)  {
 		String pass = respons.get("pass");
 		String user = respons.get("user");
 		String type = respons.get("type");
@@ -81,7 +82,7 @@ public class Server {
 		}
 	}
 
-	public static void stopServer(ServerSocket server) throws IOException {
+	public void stopServer(ServerSocket server) throws IOException {
 		String stop = respons.get("type");
 		if (stop.equals("stopServer")) {
 			server.close();

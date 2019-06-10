@@ -2,18 +2,20 @@ package com.nameless.app;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.IOException;
 
 public class MainWindow extends Thread implements Window{
-	private static JFrame frame;
-	private static JPanel panel;
+	private JFrame frame;
+	private JPanel panel;
 
-	public MainWindow(String name, Integer width, Integer height) {
-		init(name, width, height);
+	public MainWindow(String name, Integer width,
+					  Integer height, String passwordServer,
+					  String portServer) throws IOException {
+		init(name, width, height, passwordServer, portServer);
 	}
 
 	@Override
 	public void setLabel() {
-
 	}
 
 	@Override
@@ -33,13 +35,13 @@ public class MainWindow extends Thread implements Window{
 	}
 
 
-	private void init(String name, Integer width, Integer height) {
-//		setDecoration();
+	private void init(String name, Integer width, Integer height, String passwordServer, String portServer) throws IOException {
+		setDecoration();
 		frame = new JFrame(name);
 		frame.setPreferredSize(new Dimension(width, height));
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setPanel();
-		//Here code
+		setLabel();
 		frame.add(panel);
 		frame.pack();
 		frame.setResizable(false);
