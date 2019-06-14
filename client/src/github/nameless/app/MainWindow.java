@@ -1,7 +1,9 @@
 package github.nameless.app;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import java.awt.Dimension;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.HashMap;
@@ -12,9 +14,9 @@ import github.nameless.elements.Label;
 public class MainWindow implements Window{
 	private static JFrame frame;
 	private static JPanel panel;
-	public Label cpuInfoLabel;
-	public Label ramInfoLabel;
-	public Label netInfoLabel;
+	Label cpuInfoLabel;
+	Label ramInfoLabel;
+	Label netInfoLabel;
 	private String host, port, user;
 
 	private HashMap<String, String> disconnectRequest = new HashMap<>();
@@ -62,9 +64,7 @@ public class MainWindow implements Window{
 	}
 
 	@Override
-	public void setField() {
-
-	}
+	public void setField() {}
 
 	private static void sendRequest(HashMap<String, String> pc, String url, String port) {
 		try {
@@ -74,7 +74,7 @@ public class MainWindow implements Window{
 			}
 			URL server = new URL(url);
 			InputStream is = server.openStream();
-		} catch (Exception e) {
+		} catch (IOException e) {
 			Notifications.showErrorNotification("Error", e.toString());
 		}
 	}
@@ -88,15 +88,17 @@ public class MainWindow implements Window{
 	}
 
 	private void init(String name, Integer width, Integer height) {
-		setDecoration();
 		frame = new JFrame(name);
+		setDecoration();
 		frame.setPreferredSize(new Dimension(width, height));
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
 		initPackages();
 		setPanel();
 		setLabel();
 		setField();
 		setButton();
+
 		frame.add(panel);
 		frame.pack();
 		frame.setResizable(false);

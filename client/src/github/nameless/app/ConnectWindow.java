@@ -1,10 +1,18 @@
 package github.nameless.app;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.DefaultListModel;
+import javax.swing.JFrame;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import java.awt.Dimension;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Scanner;
@@ -85,9 +93,7 @@ public class ConnectWindow implements Window {
 		list.addMouseListener(new MouseAdapter(){
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				if (!connections.isEmpty()) {
-					setConnection((String) list.getSelectedValue());
-				}
+				if (!connections.isEmpty()) setConnection((String) list.getSelectedValue());
 			}
 		});
 
@@ -103,9 +109,7 @@ public class ConnectWindow implements Window {
 				String connection = sc.nextLine();
 				connections.addElement(connection);
 			}
-			if (!connections.isEmpty()) {
-				list.setModel(connections);
-			}
+			if (!connections.isEmpty()) list.setModel(connections);
 		} catch (FileNotFoundException e) {
 			try {
 				FileWriter writer = new FileWriter("connections");
@@ -135,9 +139,7 @@ public class ConnectWindow implements Window {
 				}
 				getConnections();
 			}
-		} else {
-			Notifications.showErrorNotification("Error", "Some fields are empty!");
-		}
+		} else Notifications.showErrorNotification("Error", "Some fields are empty!");
 	}
 
 	private void setConnection(String connection) {
@@ -151,11 +153,7 @@ public class ConnectWindow implements Window {
 	private void deleteConnection(String connection) {
 		if (connection != null) {
 			int index;
-			for (index = 0; index < connections.size(); index++) {
-				if (connections.get(index).equals(connection)) {
-					break;
-				}
-			}
+			for (index = 0; index < connections.size(); index++) if (connections.get(index).equals(connection)) break;
 			connections.remove(index);
 			try {
 				BufferedWriter out = new BufferedWriter(new FileWriter("connections"));
@@ -166,9 +164,7 @@ public class ConnectWindow implements Window {
 			} catch (IOException e) {
 				Notifications.showErrorNotification("Error", e.toString());
 			}
-		} else {
-			Notifications.showWarningNotification("Warning", "Please select connection from list");
-		}
+		} else Notifications.showWarningNotification("Warning", "Please select connection from list");
 	}
 
 	private void connect() {
@@ -185,35 +181,32 @@ public class ConnectWindow implements Window {
 				sendRequest(request, ip, port);
 				frame.setVisible(false);
 				server.setFrame(new MainWindow("NameLess Server Status - Client", 900, 600, ip, port, user));
-
-			} catch (Exception e) {
+			} catch (IOException e) {
 				Notifications.showErrorNotification("Error", e.toString());
 			}
-		} else {
-			Notifications.showErrorNotification("Error", "Some fields are empty!");
-		}
+		} else Notifications.showErrorNotification("Error", "Some fields are empty!");
 	}
 
-	private static void sendRequest(HashMap<String, String> pc, String url, String port) throws Exception {
+	private static void sendRequest(HashMap<String, String> pc, String url, String port) throws IOException {
 		url = "http://" + url + ":" + port + "?";
-		for (String key : pc.keySet()) {
-			url += key + "=" + pc.get(key) + "&";
-		}
+		for (String key : pc.keySet()) url += key + "=" + pc.get(key) + "&";
 		URL server = new URL(url);
 		InputStream is = server.openStream();
 	}
 
 	private void init(String name, int width, int height) {
-		setDecoration();
 		frame = new JFrame(name);
+		setDecoration();
 		frame.setPreferredSize(new Dimension(width, height));
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
 		setPanel();
 		setLabel();
 		setField();
 		setList();
-		getConnections();
 		setButton();
+		getConnections();
+		
 		frame.add(panel);
 		frame.pack();
 		frame.setResizable(false);
