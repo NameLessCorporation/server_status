@@ -1,5 +1,6 @@
 package com.nameless.app;
 
+import com.nameless.Server;
 import com.nameless.elements.Button;
 import com.nameless.elements.Field;
 import com.nameless.elements.Label;
@@ -13,17 +14,19 @@ import java.io.IOException;
 public class SetupWindow implements Window {
 	private JFrame frame;
 	private JPanel panel;
-	private Field port, password;
+	private Field password;
 
-	public SetupWindow(String name, Integer width, Integer height, Boolean isEnter) {
+
+	public SetupWindow(String name, Integer width, Integer height, Boolean isEnter) throws IOException {
 		init(name, width, height);
 	}
 
-	public void checkConnection(Boolean isEnter, String portServer, String passwordServer) throws IOException {
+	public void checkConnection(Boolean isEnter, String passwordServer)
+			throws IOException, InterruptedException {
 		if (isEnter) {
 			frame.setVisible(false);
 			MainWindow mw = new MainWindow("Server - NameLess",
-											900, 600, passwordServer, portServer);
+											900, 600, passwordServer);
 		}
 	}
 
@@ -35,7 +38,7 @@ public class SetupWindow implements Window {
 		Label password = new Label(10, 30, "Password for connect:");
 		panel.add(password);
 
-		Label port = new Label(10, 80, "Port:");
+		Label port = new Label(10, 83, "Port: 52225");
 		panel.add(port);
 	}
 
@@ -43,14 +46,11 @@ public class SetupWindow implements Window {
 	public void setField() {
 		password = new Field(7, 50, 180, 20);
 		panel.add(password);
-
-		port = new Field(7, 100, 80,20);
-		panel.add(port);
 	}
 
 	@Override
 	public void setButton() {
-		Button start = new Button(100, 100, 85,20, "start");
+		Button start = new Button(100, 80, 85,20, "start");
 		start(start);
 		panel.add(start);
 	}
@@ -59,11 +59,11 @@ public class SetupWindow implements Window {
 		ActionListener actionListener = new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				String portServer = port.getText();
 				String passwordServer = password.getText();
+				Server.setPassword(passwordServer);
 				try {
-					checkConnection(true, portServer, passwordServer);
-				} catch (IOException ex) {
+					checkConnection(true, passwordServer);
+				} catch (IOException | InterruptedException ex) {
 					ex.printStackTrace();
 				}
 			}
@@ -77,7 +77,7 @@ public class SetupWindow implements Window {
 		panel.setLayout(null);
 	}
 
-	private void init(String name, Integer width, Integer height) {
+	private void init(String name, Integer width, Integer height) throws IOException {
 		setDecoration();
 		frame = new JFrame(name);
 		frame.setPreferredSize(new Dimension(width, height));
@@ -90,6 +90,7 @@ public class SetupWindow implements Window {
 		frame.pack();
 		frame.setResizable(false);
 		frame.setVisible(true);
+		Server server = new Server();
 	}
 
 }

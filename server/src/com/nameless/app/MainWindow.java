@@ -1,5 +1,8 @@
 package com.nameless.app;
 
+import com.nameless.Server;
+import com.nameless.elements.Label;
+
 import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
@@ -9,13 +12,14 @@ public class MainWindow extends Thread implements Window{
 	private JPanel panel;
 
 	public MainWindow(String name, Integer width,
-					  Integer height, String passwordServer,
-					  String portServer) throws IOException {
-		init(name, width, height, passwordServer, portServer);
+					  Integer height, String passwordServer) throws IOException, InterruptedException {
+		init(name, width, height);
 	}
 
 	@Override
 	public void setLabel() {
+		Label label = new Label(100,100, "LOX");
+		panel.add(label);
 	}
 
 	@Override
@@ -35,7 +39,8 @@ public class MainWindow extends Thread implements Window{
 	}
 
 
-	private void init(String name, Integer width, Integer height, String passwordServer, String portServer) throws IOException {
+	private void init(String name, Integer width, Integer height)
+			throws IOException, InterruptedException {
 		setDecoration();
 		frame = new JFrame(name);
 		frame.setPreferredSize(new Dimension(width, height));

@@ -17,21 +17,26 @@ public class Server extends Thread {
 	private HashMap<String, String> respons = new HashMap<String, String>();
 	private ArrayList<String> users = new ArrayList();
 	private Boolean shutdown = false;
+	private static String password = null;
 
-	public Server(String port, String password) throws IOException {
-		startServer(port, password);
+	public Server() throws IOException {
+		startServer();
 	}
 
-	public void startServer(String port, String password) throws IOException {
+	public static void setPassword(String password) {
+		Server.password = password;
+	}
+
+	public void startServer() throws IOException {
 		InetAddress addr = InetAddress.getByName("::1");
 		System.out.println(addr.toString());
-		ServerSocket server = new ServerSocket(Integer.parseInt(port), 50, addr);
+		ServerSocket server = new ServerSocket(52225, 50, addr);
 			try {
-				server = new ServerSocket(Integer.parseInt(port));
+				server = new ServerSocket(52225);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-			System.out.println("Listening for connection on port 8080 ....");
+			System.out.println("Listening for connection on port 52225 ....");
 			while (!shutdown) {
 				try (Socket socket = server.accept()){
 					BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
