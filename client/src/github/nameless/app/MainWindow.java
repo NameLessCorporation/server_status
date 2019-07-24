@@ -1,7 +1,9 @@
 package github.nameless.app;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import java.awt.Dimension;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.HashMap;
@@ -12,17 +14,17 @@ import github.nameless.elements.Label;
 public class MainWindow implements Window{
 	private static JFrame frame;
 	private static JPanel panel;
-	public Label cpuInfoLabel;
-	public Label ramInfoLabel;
-	public Label netInfoLabel;
-	private String host, port, user;
+	Label cpuInfoLabel;
+	Label ramInfoLabel;
+	Label netInfoLabel;
+	private String host, user;
+	private static int port = 52225;
 
 	private HashMap<String, String> disconnectRequest = new HashMap<>();
 	private HashMap<String, String> stopRequest = new HashMap<>();
 
-	public MainWindow(String name, Integer width, Integer height, String host, String port, String user) {
+	public MainWindow(String name, Integer width, Integer height, String host, String user) {
 		this.host = host;
-		this.port = port;
 		this.user = user;
 		init(name, width, height);
 	}
@@ -48,8 +50,8 @@ public class MainWindow implements Window{
 		Button stopButton = new Button(8, 60, 125, 30, "Stop server");
 		Button disconnectButton = new Button(8, 90, 125, 30, "Disconnect");
 
-		stopButton.addActionListener(e -> sendRequest(stopRequest, host, port));
-		disconnectButton.addActionListener(e -> sendRequest(disconnectRequest, host, port));
+		stopButton.addActionListener(e -> sendRequest(stopRequest, host));
+		disconnectButton.addActionListener(e -> sendRequest(disconnectRequest, host));
 
 		panel.add(stopButton);
 		panel.add(disconnectButton);
@@ -62,11 +64,9 @@ public class MainWindow implements Window{
 	}
 
 	@Override
-	public void setField() {
+	public void setField() {}
 
-	}
-
-	private static void sendRequest(HashMap<String, String> pc, String url, String port) {
+	private static void sendRequest(HashMap<String, String> pc, String url) {
 		try {
 			url = "http://" + url + ":" + port + "?";
 			for (String key : pc.keySet()) {
@@ -74,7 +74,7 @@ public class MainWindow implements Window{
 			}
 			URL server = new URL(url);
 			InputStream is = server.openStream();
-		} catch (Exception e) {
+		} catch (IOException e) {
 			Notifications.showErrorNotification("Error", e.toString());
 		}
 	}
@@ -88,18 +88,21 @@ public class MainWindow implements Window{
 	}
 
 	private void init(String name, Integer width, Integer height) {
-		setDecoration();
 		frame = new JFrame(name);
+		setDecoration();
 		frame.setPreferredSize(new Dimension(width, height));
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
 		initPackages();
 		setPanel();
 		setLabel();
 		setField();
 		setButton();
+
 		frame.add(panel);
 		frame.pack();
 		frame.setResizable(false);
+		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
 	}
 

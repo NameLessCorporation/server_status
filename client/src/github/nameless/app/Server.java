@@ -5,40 +5,39 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Objects;
 
 public class Server extends Thread {
 
 	private MainWindow frame;
+	private int port = 62226;
 
 	@Override
     public void run() {
         ServerSocket server = null;
         try {
-            server = new ServerSocket(9090);
+            server = new ServerSocket(port);
         } catch (IOException e) {
 			Notifications.showErrorNotification("Error", e.getMessage());
         }
-        System.out.println("Listening for connection on port 9090 ....");
+        System.out.println("Listening for connection on port " + port + " ....");
         while (true) {
-            try (Socket socket = Objects.requireNonNull(server).accept()){
-                BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                String line = reader.readLine().replace("GET /?", "")
-                                                        .replace(" HTTP/1.1", "");
-				if (!line.equals("GET /favicon.ico")){
+			try (Socket socket = Objects.requireNonNull(server).accept()) {
+				BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+				String line = reader.readLine().replace("GET /?", "")
+						      .replace(" HTTP/1.1", "");
+				if (!line.equals("GET /favicon.ico")) {
 					HashMap<String, String> data = getData(line);
-
-					for (String key : data.keySet()) {
-						System.out.println(key + ":" + data.get(key));
-					}
+					for (String key : data.keySet()) System.out.println(key + ":" + data.get(key));
 					checkResponse(data);
 				}
-                String httpResponse = "HTTP/1.1 200 OK\r\n\r\n" + "Server started";
-                socket.getOutputStream().write(httpResponse.getBytes("UTF-8"));
-            } catch (Exception e) {
-                Notifications.showErrorNotification("Error", e.toString());
-            }
+				String httpResponse = "HTTP/1.1 200 OK\r\n\r\n" + "Server started";
+				socket.getOutputStream().write(httpResponse.getBytes(StandardCharsets.UTF_8));
+			} catch (IOException e) {
+				Notifications.showErrorNotification("Error", e.toString());
+			}
 		}
     }
 
@@ -60,6 +59,7 @@ public class Server extends Thread {
 				}
 				case "command": {
 					execute(data);
+					break;
 				}
 			}
 		}
@@ -68,9 +68,7 @@ public class Server extends Thread {
 	public void execute(HashMap<String, String> data) {
 		String command = data.get("command");
 		String arg = data.get("args");
-		if (command.equals("showNotification")) {
-			Notifications.showInfoNotification("Information from server", arg);
-		}
+		if (command.equals("showNotification")) Notifications.showInfoNotification("Information from server", arg);
 	}
 
 	public void setFrame(MainWindow frame) {
