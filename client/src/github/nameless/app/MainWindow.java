@@ -17,14 +17,14 @@ public class MainWindow implements Window{
 	Label cpuInfoLabel;
 	Label ramInfoLabel;
 	Label netInfoLabel;
-	private String host, port, user;
+	private String host, user;
+	private static int port = 52225;
 
 	private HashMap<String, String> disconnectRequest = new HashMap<>();
 	private HashMap<String, String> stopRequest = new HashMap<>();
 
-	public MainWindow(String name, Integer width, Integer height, String host, String port, String user) {
+	public MainWindow(String name, Integer width, Integer height, String host, String user) {
 		this.host = host;
-		this.port = port;
 		this.user = user;
 		init(name, width, height);
 	}
@@ -50,8 +50,8 @@ public class MainWindow implements Window{
 		Button stopButton = new Button(8, 60, 125, 30, "Stop server");
 		Button disconnectButton = new Button(8, 90, 125, 30, "Disconnect");
 
-		stopButton.addActionListener(e -> sendRequest(stopRequest, host, port));
-		disconnectButton.addActionListener(e -> sendRequest(disconnectRequest, host, port));
+		stopButton.addActionListener(e -> sendRequest(stopRequest, host));
+		disconnectButton.addActionListener(e -> sendRequest(disconnectRequest, host));
 
 		panel.add(stopButton);
 		panel.add(disconnectButton);
@@ -66,7 +66,7 @@ public class MainWindow implements Window{
 	@Override
 	public void setField() {}
 
-	private static void sendRequest(HashMap<String, String> pc, String url, String port) {
+	private static void sendRequest(HashMap<String, String> pc, String url) {
 		try {
 			url = "http://" + url + ":" + port + "?";
 			for (String key : pc.keySet()) {
@@ -102,6 +102,7 @@ public class MainWindow implements Window{
 		frame.add(panel);
 		frame.pack();
 		frame.setResizable(false);
+		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
 	}
 

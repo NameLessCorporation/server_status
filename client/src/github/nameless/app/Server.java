@@ -12,16 +12,17 @@ import java.util.Objects;
 public class Server extends Thread {
 
 	private MainWindow frame;
+	private int port = 62226;
 
 	@Override
     public void run() {
         ServerSocket server = null;
         try {
-            server = new ServerSocket(9090);
+            server = new ServerSocket(port);
         } catch (IOException e) {
 			Notifications.showErrorNotification("Error", e.getMessage());
         }
-        System.out.println("Listening for connection on port 9090 ....");
+        System.out.println("Listening for connection on port " + port + " ....");
         while (true) {
 			try (Socket socket = Objects.requireNonNull(server).accept()) {
 				BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
