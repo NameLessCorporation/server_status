@@ -33,6 +33,8 @@ public class ConnectWindow implements Window {
 	private Server server = new Server();
 	private static int port = 52225;
 
+	MainWindow window;
+
 
 	public ConnectWindow(String name, int width, int height) {
 		init(name, width, height);
@@ -178,7 +180,10 @@ public class ConnectWindow implements Window {
 			try {
 				sendRequest(request, ip);
 				frame.setVisible(false);
-				server.setFrame(new MainWindow("NameLess Server Status - Client", 900, 600, ip, user));
+				window.setHost(ip);
+				window.setUser(user);
+				window.initPackages();
+				window.frame.setVisible(true);
 			} catch (IOException e) {
 				Notifications.showErrorNotification("Error", e.toString());
 			}
@@ -193,6 +198,8 @@ public class ConnectWindow implements Window {
 	}
 
 	private void init(String name, int width, int height) {
+		window = new MainWindow("NameLess Server Status - Client", 900, 600);
+		server.setFrame(window);
 		frame = new JFrame(name);
 		setDecoration();
 		frame.setPreferredSize(new Dimension(width, height));
