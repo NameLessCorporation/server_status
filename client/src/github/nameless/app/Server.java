@@ -29,6 +29,7 @@ public class Server extends Thread {
 				String line = reader.readLine().replace("GET /?", "")
 						      .replace(" HTTP/1.1", "");
 				if (!line.equals("GET /favicon.ico")) {
+					System.out.println(line);
 					HashMap<String, String> data = getData(line);
 					for (String key : data.keySet()) System.out.println(key + ":" + data.get(key));
 					checkResponse(data);
@@ -45,15 +46,15 @@ public class Server extends Thread {
 		String type = data.get("type");
 		if (!type.isEmpty()) {
 			switch (type) {
-				case "cpu": {
+				case "CPU": {
 					frame.cpuInfoLabel.setText("CPU: " + data.get("data"));
 					break;
 				}
-				case "ram": {
+				case "RAM": {
 					frame.ramInfoLabel.setText("RAM: " + data.get("data"));
 					break;
 				}
-				case "net": {
+				case "inet": {
 					frame.netInfoLabel.setText("Internet: " + data.get("data"));
 					break;
 				}

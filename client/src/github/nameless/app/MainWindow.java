@@ -12,7 +12,7 @@ import github.nameless.elements.Button;
 import github.nameless.elements.Label;
 
 public class MainWindow implements Window{
-	private static JFrame frame;
+	static JFrame frame;
 	private static JPanel panel;
 	Label cpuInfoLabel;
 	Label ramInfoLabel;
@@ -23,23 +23,28 @@ public class MainWindow implements Window{
 	private HashMap<String, String> disconnectRequest = new HashMap<>();
 	private HashMap<String, String> stopRequest = new HashMap<>();
 
-	public MainWindow(String name, Integer width, Integer height, String host, String user) {
-		this.host = host;
-		this.user = user;
+	public MainWindow(String name, Integer width, Integer height) {
 		init(name, width, height);
+	}
+
+	public void setHost(String host) {
+		this.host = host;
+		Label ipLabel = new Label(10, 10, "Server address: " + host);
+		panel.add(ipLabel);
+	}
+
+	public void setUser(String user) {
+		this.user = user;
+		Label userLabel = new Label(10, 35, "Your username as: " + user);
+		panel.add(userLabel);
 	}
 
 	@Override
 	public void setLabel() {
-		Label ipLabel = new Label(10, 10, "Server address: " + host);
-		Label userLabel = new Label(10, 35, "Your username as: " + user);
-
 		cpuInfoLabel = new Label(250, 10, "CPU: ");
 		ramInfoLabel = new Label(250, 35, "RAM:");
 		netInfoLabel = new Label(250, 60, "Internet:");
 
-		panel.add(ipLabel);
-		panel.add(userLabel);
 		panel.add(cpuInfoLabel);
 		panel.add(ramInfoLabel);
 		panel.add(netInfoLabel);
@@ -79,7 +84,7 @@ public class MainWindow implements Window{
 		}
 	}
 
-	private void initPackages() {
+	void initPackages() {
 		disconnectRequest.put("type", "disconnect");
 		disconnectRequest.put("user", user);
 
@@ -93,17 +98,16 @@ public class MainWindow implements Window{
 		frame.setPreferredSize(new Dimension(width, height));
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-		initPackages();
 		setPanel();
 		setLabel();
 		setField();
 		setButton();
+		initPackages();
 
 		frame.add(panel);
 		frame.pack();
 		frame.setResizable(false);
 		frame.setLocationRelativeTo(null);
-		frame.setVisible(true);
 	}
 
 }
