@@ -16,7 +16,6 @@ public class SetupWindow implements Window {
 	private JPanel panel;
 	private Field password;
 
-
 	public SetupWindow(String name, Integer width, Integer height, Boolean isEnter) throws IOException {
 		init(name, width, height);
 	}

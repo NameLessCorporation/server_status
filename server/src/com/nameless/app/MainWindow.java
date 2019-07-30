@@ -1,6 +1,5 @@
 package com.nameless.app;
 
-import com.nameless.Server;
 import com.nameless.elements.Label;
 
 import javax.swing.*;
@@ -37,7 +36,6 @@ public class MainWindow extends Thread implements Window{
 	public void setField() {
 
 	}
-
 
 	private void init(String name, Integer width, Integer height)
 			throws IOException, InterruptedException {

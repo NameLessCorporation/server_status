@@ -1,14 +1,9 @@
 package com.nameless;
 
-import com.nameless.app.MainWindow;
+import com.nameless.elements.Notifications;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
-import java.net.InetAddress;
-import java.net.ServerSocket;
-import java.net.Socket;
+import java.io.*;
+import java.net.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -18,6 +13,7 @@ public class Server extends Thread {
 	private ArrayList<String> users = new ArrayList();
 	private Boolean shutdown = false;
 	private static String password = null;
+	private ArrayList<String> ipUsers = new ArrayList();
 
 	public Server() throws IOException {
 		startServer();
@@ -44,19 +40,28 @@ public class Server extends Thread {
 							.replace(" HTTP/1.1", "");
 					if (!line.equals("GET /favicon.ico")){
 						parser(line, server, password);
+						Runnable task = () -> {
+							try {
+								while (!shutdown) {
+									sendInfo(socket, password);
+								}
+							} catch (IOException e) {
+								e.printStackTrace();
+							}
+						};
+						Thread thread = new Thread(task);
+						thread.start();
 						System.out.println(line);
 					}
 					String httpResponse = "HTTP/1.1 200 OK\r\n\r\n" + "Server started";
 					socket.getOutputStream().write(httpResponse.getBytes("UTF-8"));
-				} catch (UnsupportedEncodingException e) {
-					e.printStackTrace();
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
-		}
+			}
 	}
 
-	public void parser(String request, ServerSocket server, String password) throws IOException {
+	private void parser(String request, ServerSocket server, String password) throws IOException {
 		String[] dataArray = request.split("&");
 		String[] data;
 		for (String str: dataArray) {
@@ -66,32 +71,45 @@ public class Server extends Thread {
 		for (String k: respons.keySet()) {
 			System.out.println(respons.get(k));
 		}
-		checkPassword(password);
-		checkUser(server);
+		commands(password, server);
 	}
 
-	public void checkUser(ServerSocket server) throws IOException {
-		String user = respons.get("user");
-		if (users.contains(user)) {
-			stopServer(server);
+	private void sendInfo(Socket socket, String password) throws IOException {
+		String pass = respons.get("pass");
+		if (pass.equals(password)) {
+			String ip = socket.getRemoteSocketAddress().toString()
+					.split(":")[0].replace("/", "");
+			ipUsers.add(ip);
+			Status status = new Status();
+			String info = status.statusServer();
+			for (String i : ipUsers) {
+				String url = "http://" + i + ":62226?type=RAM&data=" + info;
+				URL mes = new URL(url);
+				InputStream is = mes.openStream();
+			}
 		}
 	}
 
-	public void checkPassword(String password)  {
+	private void commands(String password, ServerSocket server) throws IOException {
 		String pass = respons.get("pass");
 		String user = respons.get("user");
 		String type = respons.get("type");
 		if (type.equals("connect") && pass.equals(password)) {
 			users.add(user);
 			System.out.println(users);
+		} else if (type.equals("stopServer") && users.contains(user)) {
+			stopServer(server);
 		}
 	}
 
-	public void stopServer(ServerSocket server) throws IOException {
+	private void stopServer(ServerSocket server) throws IOException {
 		String stop = respons.get("type");
+		String user = respons.get("user");
 		if (stop.equals("stopServer")) {
 			server.close();
 			shutdown = true;
+			Notifications n = new Notifications();
+			n.showInfoNotification("Server Stop", user + " stopped server");
 		}
 		System.out.println(stop);
 	}
