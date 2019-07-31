@@ -1,9 +1,10 @@
 package com.nameless.app;
 
 import javax.swing.*;
+import java.io.IOException;
 
 public interface Window {
-	public void setLabel();
+	public void setLabel() throws IOException;
 	public void setButton();
 	public void setPanel();
 	public void setField();
