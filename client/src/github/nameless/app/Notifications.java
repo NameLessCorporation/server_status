@@ -14,7 +14,7 @@ public class Notifications {
 			Image image = Toolkit.getDefaultToolkit().createImage("icon.png");
 			TrayIcon trayIcon = new TrayIcon(image, "Tray Demo");
 			trayIcon.setImageAutoSize(true);
-			trayIcon.setToolTip("System tray icon demo");
+			trayIcon.setToolTip("NameLess Server Status");
 			try {
 				tray.add(trayIcon);
 			} catch (AWTException e) {

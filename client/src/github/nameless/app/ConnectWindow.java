@@ -30,11 +30,10 @@ public class ConnectWindow implements Window {
 	private Field portField;
 	private Field userField;
 	private Field passField;
-	private Server server = new Server();
+	private Server server;
 	private static int port = 52225;
 
 	MainWindow window;
-
 
 	public ConnectWindow(String name, int width, int height) {
 		init(name, width, height);
@@ -179,11 +178,15 @@ public class ConnectWindow implements Window {
 			request.put("pass", pass);
 			try {
 				sendRequest(request, ip);
+				window.logArea.append("Trying to connect to " + ip + "\n");
+				window.logArea.append("Waiting for data from " + ip + "\n");
+				window.statusLabel.setText("Status: connecting");
 				frame.setVisible(false);
 				window.setHost(ip);
 				window.setUser(user);
 				window.initPackages();
 				window.frame.setVisible(true);
+				window.setServer(server);
 			} catch (IOException e) {
 				Notifications.showErrorNotification("Error", e.toString());
 			}
@@ -198,6 +201,7 @@ public class ConnectWindow implements Window {
 	}
 
 	private void init(String name, int width, int height) {
+		server = new Server();
 		window = new MainWindow("NameLess Server Status - Client", 900, 600);
 		server.setFrame(window);
 		frame = new JFrame(name);

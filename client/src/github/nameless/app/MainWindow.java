@@ -1,8 +1,9 @@
 package github.nameless.app;
 
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import java.awt.Dimension;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -17,8 +18,12 @@ public class MainWindow implements Window{
 	Label cpuInfoLabel;
 	Label ramInfoLabel;
 	Label netInfoLabel;
+	Label statusLabel;
+	TextArea logArea;
 	private String host, user;
 	private static int port = 52225;
+
+	Server server;
 
 	private HashMap<String, String> disconnectRequest = new HashMap<>();
 	private HashMap<String, String> stopRequest = new HashMap<>();
@@ -44,10 +49,12 @@ public class MainWindow implements Window{
 		cpuInfoLabel = new Label(250, 10, "CPU: ");
 		ramInfoLabel = new Label(250, 35, "RAM:");
 		netInfoLabel = new Label(250, 60, "Internet:");
+		statusLabel = new Label(250, 85, "Status: not connected");
 
 		panel.add(cpuInfoLabel);
 		panel.add(ramInfoLabel);
 		panel.add(netInfoLabel);
+		panel.add(statusLabel);
 	}
 
 	@Override
@@ -56,7 +63,10 @@ public class MainWindow implements Window{
 		Button disconnectButton = new Button(8, 90, 125, 30, "Disconnect");
 
 		stopButton.addActionListener(e -> sendRequest(stopRequest, host));
-		disconnectButton.addActionListener(e -> sendRequest(disconnectRequest, host));
+		disconnectButton.addActionListener(e -> {
+			logArea.append("Trying to disconnect\n");
+			sendRequest(disconnectRequest, host);
+		});
 
 		panel.add(stopButton);
 		panel.add(disconnectButton);
@@ -84,6 +94,14 @@ public class MainWindow implements Window{
 		}
 	}
 
+	private void setLogArea() {
+		logArea = new TextArea("", 10, 40);
+		logArea.setBounds(250, 115, 630, 350);
+		logArea.setFont(new Font("Arial", Font.PLAIN, 15));
+		logArea.setEditable(false);
+		panel.add(logArea);
+	}
+
 	void initPackages() {
 		disconnectRequest.put("type", "disconnect");
 		disconnectRequest.put("user", user);
@@ -92,16 +110,21 @@ public class MainWindow implements Window{
 		stopRequest.put("user", user);
 	}
 
+	public void setServer(Server server) {
+		this.server = server;
+	}
+
 	private void init(String name, Integer width, Integer height) {
 		frame = new JFrame(name);
 		setDecoration();
 		frame.setPreferredSize(new Dimension(width, height));
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
 		setPanel();
 		setLabel();
 		setField();
 		setButton();
+		setLogArea();
 		initPackages();
 
 		frame.add(panel);
