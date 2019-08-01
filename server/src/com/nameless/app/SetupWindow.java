@@ -88,6 +88,7 @@ public class SetupWindow implements Window {
 		frame.add(panel);
 		frame.pack();
 		frame.setResizable(false);
+		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
 		Server server = new Server();
 	}

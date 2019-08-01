@@ -1,5 +1,6 @@
 package com.nameless;
 
+import com.nameless.app.MainWindow;
 import com.nameless.elements.Notifications;
 
 import java.io.*;
@@ -9,9 +10,10 @@ import java.util.HashMap;
 
 public class Server extends Thread {
 	private HashMap<String, String> respons = new HashMap<String, String>();
-	private HashMap<String, String> users = new HashMap<String, String>();
 	private Boolean shutdown = false;
 	private static String password = null;
+
+	public static HashMap<String, String> users = new HashMap<String, String>();
 
 	public Server() throws IOException {
 		startServer();
@@ -37,6 +39,7 @@ public class Server extends Thread {
 					Runnable task = () -> {
 						try {
 							while (!shutdown) {
+								MainWindow.getUsers();
 								sendInfo(socket, password);
 							}
 						} catch (IOException e) {e.printStackTrace();}
@@ -85,10 +88,12 @@ public class Server extends Thread {
 		String pass = respons.get("pass");
 		String user = respons.get("user");
 		String type = respons.get("type");
-		if (type.equals("connect") && pass.equals(password)) {
+		if (type.equals("connect") && pass.equals(password) && !users.containsKey(user)) {
 			String ip = socket.getRemoteSocketAddress().toString()
 					.split(":")[0].replace("/", "");
-			users.put(user, ip);
+			if (!users.containsValue(ip)) {
+				users.put(user, ip);
+			}
 		} else if (type.equals("stopServer") && users.containsKey(user)) {stopServer(server);
 		} else if (type.equals("disconnect")) {disconnectUser();}
 	}
@@ -112,6 +117,7 @@ public class Server extends Thread {
 		shutdown = true;
 		String user = respons.get("user");
 		Notifications n = new Notifications();
+		MainWindow.s.setText("Status: server was stopped");
 		n.showInfoNotification("Server was stopped", user + " stopped server");
 	}
 
