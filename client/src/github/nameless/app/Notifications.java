@@ -11,7 +11,7 @@ public class Notifications {
 	public static void showNotification(String caption, String text, TrayIcon.MessageType type) {
 		if (SystemTray.isSupported()) {
 			SystemTray tray = SystemTray.getSystemTray();
-			Image image = Toolkit.getDefaultToolkit().createImage("icon.png");
+			Image image = Toolkit.getDefaultToolkit().createImage("logo_transparent.png");
 			TrayIcon trayIcon = new TrayIcon(image, "Tray Demo");
 			trayIcon.setImageAutoSize(true);
 			trayIcon.setToolTip("NameLess Server Status");

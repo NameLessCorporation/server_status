@@ -20,7 +20,7 @@ public class MainWindow implements Window{
 	Label netInfoLabel;
 	Label statusLabel;
 	TextArea logArea;
-	private String host, user;
+	String host, user;
 	private static int port = 52225;
 
 	Server server;
@@ -51,6 +51,8 @@ public class MainWindow implements Window{
 		netInfoLabel = new Label(250, 60, "Internet:");
 		statusLabel = new Label(250, 85, "Status: not connected");
 
+		panel.add(new Label(250, 110, "Log:"));
+
 		panel.add(cpuInfoLabel);
 		panel.add(ramInfoLabel);
 		panel.add(netInfoLabel);
@@ -61,8 +63,11 @@ public class MainWindow implements Window{
 	public void setButton() {
 		Button stopButton = new Button(8, 60, 125, 30, "Stop server");
 		Button disconnectButton = new Button(8, 90, 125, 30, "Disconnect");
-
-		stopButton.addActionListener(e -> sendRequest(stopRequest, host));
+		stopButton.addActionListener(e -> {
+			sendRequest(stopRequest, host);
+			logArea.append("Stopping server\n");
+			statusLabel.setText("Status: server was stopped");
+		});
 		disconnectButton.addActionListener(e -> {
 			logArea.append("Trying to disconnect\n");
 			sendRequest(disconnectRequest, host);
@@ -96,7 +101,7 @@ public class MainWindow implements Window{
 
 	private void setLogArea() {
 		logArea = new TextArea("", 10, 40);
-		logArea.setBounds(250, 115, 630, 350);
+		logArea.setBounds(250, 130, 630, 430);
 		logArea.setFont(new Font("Arial", Font.PLAIN, 15));
 		logArea.setEditable(false);
 		panel.add(logArea);

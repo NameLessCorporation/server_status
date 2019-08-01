@@ -2,6 +2,7 @@ package github.nameless.app;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
@@ -12,10 +13,20 @@ public class Server extends Thread {
 
 	private MainWindow frame;
 	private int port = 62226;
-	private boolean isConnected = false;
+	String host;
+	private boolean isDataReceived = false;
 	ServerSocket server = null;
+	HashMap<String, String> connectRequest;
 
-	public static String myPublicIp() throws IOException {
+	public void setConnectRequest(HashMap<String, String> connectRequest) {
+		this.connectRequest = connectRequest;
+	}
+
+	public void setHost(String host) {
+		this.host = host;
+	}
+
+	public String myPublicIp() throws IOException {
 		URL url = new URL("https://api.ipify.org");
 		HttpURLConnection connection = (HttpURLConnection)url.openConnection();
 		connection.setRequestMethod("GET");
@@ -23,6 +34,20 @@ public class Server extends Thread {
 		BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
 		String ip = bufferedReader.readLine();
 		return ip;
+	}
+
+	private void sendRequest(HashMap<String, String> pc, String url) {
+		try {
+			url = "http://" + url + ":52225?";
+			for (String key : pc.keySet()) {
+				url += key + "=" + pc.get(key) + "&";
+			}
+			URL server = new URL(url);
+			frame.logArea.append("Trying to connect\n");
+			InputStream is = server.openStream();
+		} catch (IOException e) {
+			frame.logArea.append(e.toString() + "\n");
+		}
 	}
 
 	@Override
@@ -39,13 +64,12 @@ public class Server extends Thread {
 				String line = reader.readLine().replace("GET /?", "")
 						      .replace(" HTTP/1.1", "");
 				if (!line.equals("GET /favicon.ico")) {
-					if (!isConnected) {
+					if (!isDataReceived) {
 						frame.logArea.append("Data received\n");
 						frame.statusLabel.setText("Status: connected");
-						isConnected = true;
+						isDataReceived = true;
 					}
 					HashMap<String, String> data = getData(line);
-//					for (String key : data.keySet()) System.out.println(key + ":" + data.get(key));
 					checkResponse(data);
 				}
 				String httpResponse = "HTTP/1.1 200 OK\r\n\r\n" + "Server started";
