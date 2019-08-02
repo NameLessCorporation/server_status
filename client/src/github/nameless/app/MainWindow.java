@@ -15,6 +15,8 @@ public class MainWindow implements Window{
 	static JFrame frame;
 	private static JPanel panel;
 	JList<String> usersList, ipList;
+	Button disconnectButton;
+	Button stopButton;
 	Label cpuInfoLabel;
 	Label ramInfoLabel;
 	Label netInfoLabel;
@@ -62,8 +64,8 @@ public class MainWindow implements Window{
 
 	@Override
 	public void setButton() {
-		Button stopButton = new Button(8, 60, 216, 30, "Stop server");
-		Button disconnectButton = new Button(8, 90, 216, 30, "Disconnect");
+		stopButton = new Button(8, 60, 216, 30, "Stop server");
+		disconnectButton = new Button(8, 90, 216, 30, "Disconnect");
 		stopButton.addActionListener(e -> {
 			logArea.append("Trying to stopping server\n");
 			sendRequest(stopRequest, host);

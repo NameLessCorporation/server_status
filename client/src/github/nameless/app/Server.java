@@ -109,11 +109,15 @@ public class Server extends Thread {
 					frame.logArea.append("Disconnected\n");
 					frame.ipList.setModel(new DefaultListModel<>());
 					frame.usersList.setModel(new DefaultListModel<>());
+					frame.disconnectButton.setEnabled(false);
+					frame.stopButton.setEnabled(false);
 					break;
 				}
 				case "serverStopped": {
 					frame.statusLabel.setText("Status: server was stopped");
 					frame.logArea.append("Server was stopped\n");
+					frame.disconnectButton.setEnabled(false);
+					frame.stopButton.setEnabled(false);
 					break;
 				}
 				case "users": {
