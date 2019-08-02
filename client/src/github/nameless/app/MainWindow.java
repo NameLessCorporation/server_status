@@ -1,9 +1,8 @@
 package github.nameless.app;
 
 import javax.swing.*;
+import javax.swing.border.LineBorder;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -15,6 +14,7 @@ import github.nameless.elements.Label;
 public class MainWindow implements Window{
 	static JFrame frame;
 	private static JPanel panel;
+	JList<String> usersList, ipList;
 	Label cpuInfoLabel;
 	Label ramInfoLabel;
 	Label netInfoLabel;
@@ -40,7 +40,7 @@ public class MainWindow implements Window{
 
 	public void setUser(String user) {
 		this.user = user;
-		Label userLabel = new Label(10, 35, "Your username as: " + user);
+		Label userLabel = new Label(10, 35, "Your connected as: " + user);
 		panel.add(userLabel);
 	}
 
@@ -51,7 +51,8 @@ public class MainWindow implements Window{
 		netInfoLabel = new Label(250, 60, "Internet:");
 		statusLabel = new Label(250, 85, "Status: not connected");
 
-		panel.add(new Label(250, 110, "Log:"));
+		panel.add(new Label(8, 130, "Users:"));
+		panel.add(new Label(250, 130, "Log:"));
 
 		panel.add(cpuInfoLabel);
 		panel.add(ramInfoLabel);
@@ -61,12 +62,11 @@ public class MainWindow implements Window{
 
 	@Override
 	public void setButton() {
-		Button stopButton = new Button(8, 60, 125, 30, "Stop server");
-		Button disconnectButton = new Button(8, 90, 125, 30, "Disconnect");
+		Button stopButton = new Button(8, 60, 216, 30, "Stop server");
+		Button disconnectButton = new Button(8, 90, 216, 30, "Disconnect");
 		stopButton.addActionListener(e -> {
+			logArea.append("Trying to stopping server\n");
 			sendRequest(stopRequest, host);
-			logArea.append("Stopping server\n");
-			statusLabel.setText("Status: server was stopped");
 		});
 		disconnectButton.addActionListener(e -> {
 			logArea.append("Trying to disconnect\n");
@@ -101,10 +101,24 @@ public class MainWindow implements Window{
 
 	private void setLogArea() {
 		logArea = new TextArea("", 10, 40);
-		logArea.setBounds(250, 130, 630, 430);
+		logArea.setBounds(250, 150, 630, 410);
 		logArea.setFont(new Font("Arial", Font.PLAIN, 15));
 		logArea.setEditable(false);
 		panel.add(logArea);
+	}
+
+	private void setList() {
+		usersList = new JList();
+		usersList.setBounds(8, 150, 108, 300);
+		usersList.setBorder(new LineBorder(Color.BLACK));
+		usersList.setSelectionMode(0);
+		panel.add(usersList);
+
+		ipList = new JList();
+		ipList.setBounds(116, 150, 108, 300);
+		ipList.setBorder(new LineBorder(Color.BLACK));
+		ipList.setSelectionMode(0);
+		panel.add(ipList);
 	}
 
 	void initPackages() {
@@ -130,6 +144,7 @@ public class MainWindow implements Window{
 		setField();
 		setButton();
 		setLogArea();
+		setList();
 		initPackages();
 
 		frame.add(panel);
