@@ -2,18 +2,16 @@ package com.nameless;
 
 import com.nameless.app.MainWindow;
 import com.nameless.elements.Notifications;
+import static com.nameless.app.MainWindow.ipModel;
+import static com.nameless.app.MainWindow.usersModel;
 
 import java.io.*;
 import java.net.*;
 import java.util.HashMap;
 
-import static com.nameless.app.MainWindow.ipModel;
-import static com.nameless.app.MainWindow.usersModel;
-
-
 public class Server extends Thread {
-	private HashMap<String, String> respons = new HashMap<String, String>();
-	private Boolean shutdown = false;
+	private static HashMap<String, String> respons = new HashMap<String, String>();
+	private static Boolean shutdown = false;
 	private static String password = null;
 
 	public static HashMap<String, String> users = new HashMap<String, String>();
@@ -44,6 +42,7 @@ public class Server extends Thread {
 							while (!shutdown) {
 								MainWindow.getUsers();
 								sendInfo(socket, password);
+								sendUsersInfo();
 							}
 						} catch (IOException e) {e.printStackTrace();}
 					};
@@ -97,7 +96,7 @@ public class Server extends Thread {
 			if (!users.containsValue(ip)) {
 				users.put(user, ip);
 			}
-		} else if (type.equals("stopServer") && users.containsKey(user)) {stopServer(server);
+		} else if (type.equals("stopServer") && users.containsKey(user)) {stopServer(false); server.close();
 		} else if (type.equals("disconnect")) {disconnectUser();}
 	}
 
@@ -115,20 +114,31 @@ public class Server extends Thread {
 		}
 	}
 
-	private void clearList() {
+	private static void clearList() {
 		usersModel.clear();
 		ipModel.clear();
 		MainWindow.usersList.setModel(usersModel);
 		MainWindow.ipList.setModel(ipModel);
 	}
 
-	private void stopServer(ServerSocket server) throws IOException {
-		server.close();
+	private void sendUsersInfo() throws IOException {
+		for (String i: users.keySet()) {
+			String url = "http://" + users.get(i) + ":62226?type=users&" + i + "=" + users.get(i);
+			URL mes = new URL(url);
+			InputStream is = mes.openStream();
+		}
+	}
+
+	public static void stopServer(Boolean server) throws IOException {
 		shutdown = true;
 		String user = respons.get("user");
 		Notifications n = new Notifications();
 		MainWindow.s.setText("Status: server was stopped");
-		n.showInfoNotification("Server was stopped", user + " stopped server");
+		if (server) {
+			n.showInfoNotification("Server was stopped", "server was stopped");
+		} else {
+			n.showInfoNotification("Server was stopped", user + " stopped server");
+		}
 		for (String i: users.keySet()) {
 			String url = "http://" + users.get(i) + ":62226?type=serverStopped";
 			URL mes = new URL(url);

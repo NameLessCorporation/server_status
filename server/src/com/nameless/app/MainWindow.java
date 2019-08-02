@@ -2,12 +2,15 @@ package com.nameless.app;
 
 import com.nameless.Server;
 import com.nameless.Status;
+import com.nameless.elements.Button;
 import com.nameless.elements.Label;
 
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 import java.awt.*;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.HashMap;
 
@@ -48,7 +51,9 @@ public class MainWindow extends Thread implements Window{
 
 	@Override
 	public void setButton() {
-
+		Button stop = new Button(10, 70,140, 32, "Stop server");
+		panel.add(stop);
+		stop(stop);
 	}
 
 	@Override
@@ -90,6 +95,20 @@ public class MainWindow extends Thread implements Window{
 		ipList.setModel(ipModel);
 	}
 
+	public void stop(Button add) {
+		ActionListener actionListener = new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				try {
+					Server.stopServer(true);
+				} catch (IOException ex) {
+					ex.printStackTrace();
+				}
+			}
+		};
+		add.addActionListener(actionListener);
+	}
+
 	private void init(String name, Integer width, Integer height)
 			throws IOException {
 		setDecoration();
@@ -99,6 +118,7 @@ public class MainWindow extends Thread implements Window{
 		setPanel();
 		setLabel();
 		setList();
+		setButton();
 		frame.add(panel);
 		frame.pack();
 		frame.setLocationRelativeTo(null);
