@@ -4,7 +4,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.*;
+import java.net.HttpURLConnection;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Objects;
@@ -103,6 +106,16 @@ public class Server extends Thread {
 				case "disconnected": {
 					frame.statusLabel.setText("Status: disconnected");
 					frame.logArea.append("Disconnected\n");
+					break;
+				}
+				case "serverStopped": {
+					frame.statusLabel.setText("Status: server was stopped");
+					frame.logArea.append("Server was stopped\n");
+					break;
+				}
+				case "users": {
+					data.remove("type");
+
 					break;
 				}
 				case "command": {

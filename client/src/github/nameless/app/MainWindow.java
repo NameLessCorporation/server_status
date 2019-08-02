@@ -1,9 +1,9 @@
 package github.nameless.app;
 
 import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.TextArea;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -15,6 +15,7 @@ import github.nameless.elements.Label;
 public class MainWindow implements Window{
 	static JFrame frame;
 	private static JPanel panel;
+	JList<String> usersList, ipList;
 	Label cpuInfoLabel;
 	Label ramInfoLabel;
 	Label netInfoLabel;
@@ -40,7 +41,7 @@ public class MainWindow implements Window{
 
 	public void setUser(String user) {
 		this.user = user;
-		Label userLabel = new Label(10, 35, "Your username as: " + user);
+		Label userLabel = new Label(10, 35, "Your connected as: " + user);
 		panel.add(userLabel);
 	}
 
@@ -61,12 +62,11 @@ public class MainWindow implements Window{
 
 	@Override
 	public void setButton() {
-		Button stopButton = new Button(8, 60, 125, 30, "Stop server");
-		Button disconnectButton = new Button(8, 90, 125, 30, "Disconnect");
+		Button stopButton = new Button(8, 60, 200, 30, "Stop server");
+		Button disconnectButton = new Button(8, 90, 200, 30, "Disconnect");
 		stopButton.addActionListener(e -> {
+			logArea.append("Trying to stopping server\n");
 			sendRequest(stopRequest, host);
-			logArea.append("Stopping server\n");
-			statusLabel.setText("Status: server was stopped");
 		});
 		disconnectButton.addActionListener(e -> {
 			logArea.append("Trying to disconnect\n");
