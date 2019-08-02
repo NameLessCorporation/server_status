@@ -1,9 +1,6 @@
 package github.nameless.app;
 
-import javax.swing.DefaultListModel;
-import javax.swing.JFrame;
-import javax.swing.JList;
-import javax.swing.JPanel;
+import javax.swing.*;
 import java.awt.Dimension;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -204,12 +201,12 @@ public class ConnectWindow implements Window {
 
 	private void init(String name, int width, int height) {
 		server = new Server();
-		window = new MainWindow("NameLess Server Status - Client", 900, 600);
+		window = new MainWindow("NameLess Server Status - Client", 900, 640);
 		server.setFrame(window);
 		frame = new JFrame(name);
 		setDecoration();
 		frame.setPreferredSize(new Dimension(width, height));
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
 		setPanel();
 		setLabel();

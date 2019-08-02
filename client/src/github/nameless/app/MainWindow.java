@@ -3,12 +3,19 @@ package github.nameless.app;
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.HashMap;
 
 import github.nameless.elements.Button;
+import github.nameless.elements.Field;
 import github.nameless.elements.Label;
 
 public class MainWindow implements Window{
@@ -17,12 +24,14 @@ public class MainWindow implements Window{
 	JList<String> usersList, ipList;
 	Button disconnectButton;
 	Button stopButton;
+	Button sendButton;
 	Label cpuInfoLabel;
 	Label ramInfoLabel;
 	Label netInfoLabel;
 	Label statusLabel;
-	TextArea logArea;
+	TextArea logArea, shellArea;
 	String host, user;
+	Field shellCommand;
 	private static int port = 52225;
 
 	Server server;
@@ -52,9 +61,13 @@ public class MainWindow implements Window{
 		ramInfoLabel = new Label(250, 35, "RAM:");
 		netInfoLabel = new Label(250, 60, "Internet:");
 		statusLabel = new Label(250, 85, "Status: not connected");
+		Label userLabel = new Label(8, 130, "Users:");
 
-		panel.add(new Label(8, 130, "Users:"));
-		panel.add(new Label(250, 130, "Log:"));
+		userLabel.setBounds(8, 130, 100, 15);
+
+		panel.add(userLabel);
+		panel.add(new Label(250, 110, "Log:"));
+		panel.add(new Label(250, 577, "Command:"));
 
 		panel.add(cpuInfoLabel);
 		panel.add(ramInfoLabel);
@@ -66,6 +79,7 @@ public class MainWindow implements Window{
 	public void setButton() {
 		stopButton = new Button(8, 60, 216, 30, "Stop server");
 		disconnectButton = new Button(8, 90, 216, 30, "Disconnect");
+		sendButton = new Button(790, 572, 100, 25, "Send");
 		stopButton.addActionListener(e -> {
 			logArea.append("Trying to stopping server\n");
 			sendRequest(stopRequest, host);
@@ -74,7 +88,16 @@ public class MainWindow implements Window{
 			logArea.append("Trying to disconnect\n");
 			sendRequest(disconnectRequest, host);
 		});
+		sendButton.addActionListener(e -> {
+			if (! shellCommand.getText().trim().isEmpty()) {
+				HashMap<String, String> shellPackage = new HashMap<>();
+				shellPackage.put("type", "shell");
+				shellPackage.put("data", shellCommand.getText().trim());
+				sendRequest(shellPackage, host);
+			}
+		});
 
+		panel.add(sendButton);
 		panel.add(stopButton);
 		panel.add(disconnectButton);
 	}
@@ -86,7 +109,11 @@ public class MainWindow implements Window{
 	}
 
 	@Override
-	public void setField() {}
+	public void setField() {
+		shellCommand = new Field(330, 572, 450, 25);
+
+		panel.add(shellCommand);
+	}
 
 	private static void sendRequest(HashMap<String, String> pc, String url) {
 		try {
@@ -103,10 +130,18 @@ public class MainWindow implements Window{
 
 	private void setLogArea() {
 		logArea = new TextArea("", 10, 40);
-		logArea.setBounds(250, 150, 630, 410);
+		logArea.setBounds(250, 130, 630, 200);
 		logArea.setFont(new Font("Arial", Font.PLAIN, 15));
 		logArea.setEditable(false);
 		panel.add(logArea);
+	}
+
+	private void setShellArea() {
+		shellArea = new TextArea("", 10, 40);
+		shellArea.setBounds(250, 360, 630, 200);
+		shellArea.setFont(new Font("Arial", Font.PLAIN, 15));
+		shellArea.setEditable(false);
+		panel.add(shellArea);
 	}
 
 	private void setList() {
@@ -145,9 +180,20 @@ public class MainWindow implements Window{
 		setLabel();
 		setField();
 		setButton();
+		setShellArea();
 		setLogArea();
 		setList();
 		initPackages();
+
+		frame.addWindowListener(new WindowAdapter(){
+			public void windowClosing(WindowEvent e){
+				logArea.append("Trying to disconnect\n");
+				sendRequest(disconnectRequest, host);
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException ignored) {}
+			}
+		});
 
 		frame.add(panel);
 		frame.pack();

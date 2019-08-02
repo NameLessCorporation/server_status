@@ -116,6 +116,8 @@ public class Server extends Thread {
 				case "serverStopped": {
 					frame.statusLabel.setText("Status: server was stopped");
 					frame.logArea.append("Server was stopped\n");
+					frame.ipList.setModel(new DefaultListModel<>());
+					frame.usersList.setModel(new DefaultListModel<>());
 					frame.disconnectButton.setEnabled(false);
 					frame.stopButton.setEnabled(false);
 					break;
@@ -132,6 +134,14 @@ public class Server extends Thread {
 					}
 					frame.usersList.setModel(usersModel);
 					frame.ipList.setModel(ipModel);
+					break;
+				}
+				case "shellResult": {
+					String result = data.get("data");
+					if (!result.isEmpty()) {
+						result = result.replace("()n", "\n");
+						frame.shellArea.append(result + "\n");
+					}
 					break;
 				}
 				case "command": {
@@ -157,7 +167,11 @@ public class Server extends Thread {
 		HashMap<String, String> response = new HashMap<>();
 		for (int i = 0; i < dataArray.length; i++) {
 			String[] data = dataArray[i].split("=");
-			response.put(data[0], data[1]);
+			try {
+				response.put(data[0], data[1]);
+			} catch (ArrayIndexOutOfBoundsException e) {
+				response.put(data[0], "");
+			}
 		}
 		return response;
 	}

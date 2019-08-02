@@ -9,7 +9,7 @@ public class Label extends JLabel {
 
 	public Label(Integer x, Integer y, String name) {
 		this.setText(name);
-		this.setBounds(x, y, name.length() * 100, 15);
+		this.setBounds(x, y, name.length() * 70, 15);
 		this.setFont(new Font("Arial", Font.PLAIN, 15));
 	}
 }
