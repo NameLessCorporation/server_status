@@ -14,11 +14,13 @@ import java.util.HashMap;
 public class MainWindow extends Thread implements Window{
 	private JFrame frame;
 	private JPanel panel;
-	private static JList usersList;
-	private static JList ipList;
 	private String info = "server is working";
 
 	public static Label s;
+	public static JList ipList;
+	public static JList usersList;
+	public static DefaultListModel<String> usersModel;
+	public static DefaultListModel<String> ipModel;
 
 	public MainWindow(String name, Integer width,
 					  Integer height, String passwordServer) throws IOException, InterruptedException {
@@ -76,8 +78,8 @@ public class MainWindow extends Thread implements Window{
 
 	public static void getUsers() {
 		HashMap<String, String> users = Server.users;
-		DefaultListModel<String> usersModel = new DefaultListModel<>();
-		DefaultListModel<String> ipModel = new DefaultListModel<>();
+		usersModel = new DefaultListModel<>();
+		ipModel = new DefaultListModel<>();
 		int j = 0;
 		for (String i: users.keySet()) {
 			ipModel.add(j, users.get(i));

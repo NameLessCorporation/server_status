@@ -7,6 +7,9 @@ import java.io.*;
 import java.net.*;
 import java.util.HashMap;
 
+import static com.nameless.app.MainWindow.ipModel;
+import static com.nameless.app.MainWindow.usersModel;
+
 
 public class Server extends Thread {
 	private HashMap<String, String> respons = new HashMap<String, String>();
@@ -112,6 +115,13 @@ public class Server extends Thread {
 		}
 	}
 
+	private void clearList() {
+		usersModel.clear();
+		ipModel.clear();
+		MainWindow.usersList.setModel(usersModel);
+		MainWindow.ipList.setModel(ipModel);
+	}
+
 	private void stopServer(ServerSocket server) throws IOException {
 		server.close();
 		shutdown = true;
@@ -119,6 +129,12 @@ public class Server extends Thread {
 		Notifications n = new Notifications();
 		MainWindow.s.setText("Status: server was stopped");
 		n.showInfoNotification("Server was stopped", user + " stopped server");
+		for (String i: users.keySet()) {
+			String url = "http://" + users.get(i) + ":62226?type=serverStopped";
+			URL mes = new URL(url);
+			InputStream is = mes.openStream();
+		}
+		clearList();
 	}
 
 }
