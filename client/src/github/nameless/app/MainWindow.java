@@ -108,6 +108,7 @@ public class MainWindow implements Window{
 			if (! shellCommand.getText().trim().isEmpty()) {
 				HashMap<String, String> shellPackage = new HashMap<>();
 				shellPackage.put("type", "shell");
+				shellPackage.put("user", user);
 				shellPackage.put("data", shellCommand.getText().trim());
 				shellArea.append(">>> " + shellCommand.getText().trim() + "\n");
 				sendRequest(shellPackage, host);
@@ -179,7 +180,7 @@ public class MainWindow implements Window{
 		panel.add(ipList);
 	}
 
-	void initPackages() {
+	public void initPackages() {
 		disconnectRequest.put("type", "disconnect");
 		disconnectRequest.put("user", user);
 
@@ -204,7 +205,6 @@ public class MainWindow implements Window{
 		setShellArea();
 		setLogArea();
 		setList();
-		initPackages();
 
 		frame.addWindowListener(new WindowAdapter(){
 			public void windowClosing(WindowEvent e){
