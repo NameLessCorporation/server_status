@@ -3,6 +3,8 @@ package com.nameless;
 import com.nameless.app.MainWindow;
 import com.nameless.elements.Notifications;
 
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -21,6 +23,7 @@ public class Server extends Thread {
 	private Boolean shutdown = false;
 	private HashMap<String, String> respons = new HashMap<String, String>();
 
+	public String userBan = "";
 	public HashMap<String, String> users = new HashMap<String, String>();
 
 	public void setMw(MainWindow mw) {
@@ -168,7 +171,6 @@ public class Server extends Thread {
 			mw.ipList.setModel(mw.ipModel);
 		} catch (Exception e) {
 			System.out.println("List users is clear");}
-
 	}
 
 	private void sendUsersInfo() throws IOException {
@@ -184,7 +186,7 @@ public class Server extends Thread {
 		} catch (Exception e) {disconnectUser();}
 	}
 
-	private void setLogs(String logs) {
+	public void setLogs(String logs) {
 		Date date = new Date();
 		SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
 		String nowDate = formatter.format(date);
@@ -192,7 +194,26 @@ public class Server extends Thread {
 	}
 
 	public void banUsers() {
-
+		mw.ipList.addMouseListener(new MouseAdapter(){
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if (users.size() > 0) {
+					userBan = (String) mw.ipList.getSelectedValue();
+					mw.usersLabel.setText("Users: ");
+					mw.ipLabel.setText("IP: " + userBan);
+				}
+			}
+		});
+		mw.usersList.addMouseListener(new MouseAdapter(){
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if (users.size() > 0) {
+					userBan = (String) mw.usersList.getSelectedValue();
+					mw.ipLabel.setText("IP: ");
+					mw.usersLabel.setText("User: " + userBan);
+				}
+			}
+		});
 	}
 
 	public void stopServer(Boolean server) throws IOException {

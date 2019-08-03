@@ -93,6 +93,7 @@ public class SetupWindow implements Window {
 		mw = new MainWindow("Server - NameLess",
 				900, 600, server);
 		server.setMw(mw);
+		server.banUsers();
 		server.startServer();
 	}
 

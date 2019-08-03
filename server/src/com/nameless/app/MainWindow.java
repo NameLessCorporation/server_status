@@ -4,6 +4,7 @@ import com.nameless.Server;
 import com.nameless.Status;
 import com.nameless.elements.Button;
 import com.nameless.elements.Label;
+import com.nameless.elements.Notifications;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JFrame;
@@ -15,7 +16,6 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.TextArea;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.HashMap;
@@ -28,8 +28,11 @@ public class MainWindow extends Thread implements Window {
 	public Label s;
 	public JList ipList;
 	public JFrame frame;
+	public Label ipLabel;
 	public JList usersList;
+	public Label usersLabel;
 	public TextArea logsArea;
+
 	public DefaultListModel<String> ipModel;
 	public DefaultListModel<String> usersModel;
 
@@ -52,10 +55,10 @@ public class MainWindow extends Thread implements Window {
 		s = new Label(10, 50, "Status: " + info);
 		panel.add(s);
 
-		Label usersLabel = new Label(200, 10, "Users:");
+		usersLabel = new Label(200, 10, "Users:");
 		panel.add(usersLabel);
 
-		Label ipLabel = new Label(410, 10, "IP:");
+		ipLabel = new Label(410, 10, "IP:");
 		panel.add(ipLabel);
 
 		Label logs = new Label(200, 340, "Logs:");
@@ -72,7 +75,7 @@ public class MainWindow extends Thread implements Window {
 		panel.add(clear);
 		clearLog(clear);
 
-		Button ban = new Button(20, 120, 130, 32, "Ban user");
+		Button ban = new Button(20, 120, 130, 32, "Disconnect user");
 		panel.add(ban);
 		ban(ban);
 	}
@@ -101,13 +104,11 @@ public class MainWindow extends Thread implements Window {
 		usersList = new JList();
 		usersList.setBounds(200, 30, 200, 300);
 		usersList.setBorder(new LineBorder(Color.BLACK));
-		usersList.setSelectionMode(0);
 		panel.add(usersList);
 
 		ipList = new JList();
 		ipList.setBounds(410, 30, 200, 300);
 		ipList.setBorder(new LineBorder(Color.BLACK));
-		ipList.setSelectionMode(0);
 		panel.add(ipList);
 	}
 
@@ -122,7 +123,7 @@ public class MainWindow extends Thread implements Window {
 				usersModel.add(j, i);
 				j++;
 			}
-			Thread.sleep(1000);
+			Thread.sleep(3000);
 			usersList.setModel(usersModel);
 			ipList.setModel(ipModel);
 		} catch (Exception e) {
@@ -137,7 +138,30 @@ public class MainWindow extends Thread implements Window {
 	}
 
 	public void ban(Button add) {
-		ActionListener actionListener = e -> server.banUsers();
+		Notifications n = new Notifications();
+		ActionListener actionListener = e -> {
+			if (!server.userBan.isEmpty()) {
+				for (String i : server.users.keySet()) {
+					if(server.users.containsKey(server.userBan)) {
+						server.users.remove(server.userBan);
+						server.setLogs(server.userBan + " was disconnected");
+						n.showInfoNotification("User disconnect",
+								server.userBan + " disconnect from server");
+						usersLabel.setText("Users: ");
+					} else if (server.users.containsValue(server.userBan)) {
+						for (String j : server.users.keySet()) {
+							if (server.userBan.equals(server.users.get(j))) {
+								server.users.remove(j);
+								server.setLogs(server.userBan + " was disconnected");
+								n.showInfoNotification("User disconnect",
+										server.userBan + " disconnect from server");
+								usersLabel.setText("IP: ");
+							}
+						}
+					}
+				}
+			}
+		};
 		add.addActionListener(actionListener);
 	}
 
