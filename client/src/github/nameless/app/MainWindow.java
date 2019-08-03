@@ -16,6 +16,8 @@ import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 
 import github.nameless.elements.Button;
@@ -44,6 +46,13 @@ public class MainWindow implements Window{
 
 	public MainWindow(String name, Integer width, Integer height) {
 		init(name, width, height);
+	}
+
+	public void log(String log) {
+		Date date = new Date();
+		SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+		String nowDate = formatter.format(date);
+		logArea.append(nowDate + "  |  " + log + "\n");
 	}
 
 	public void setHost(String host) {
@@ -88,11 +97,11 @@ public class MainWindow implements Window{
 
 
 		stopButton.addActionListener(e -> {
-			logArea.append("Trying to stopping server\n");
+			log("Trying to stopping server");
 			sendRequest(stopRequest, host);
 		});
 		disconnectButton.addActionListener(e -> {
-			logArea.append("Trying to disconnect\n");
+			log("Trying to disconnect");
 			sendRequest(disconnectRequest, host);
 		});
 		sendButton.addActionListener(e -> {
@@ -142,7 +151,7 @@ public class MainWindow implements Window{
 	private void setLogArea() {
 		logArea = new TextArea("", 10, 40);
 		logArea.setBounds(250, 130, 630, 200);
-		logArea.setFont(new Font("Arial", Font.PLAIN, 15));
+		logArea.setFont(new Font("Arial", Font.PLAIN, 13));
 		logArea.setEditable(false);
 		panel.add(logArea);
 	}
@@ -150,7 +159,7 @@ public class MainWindow implements Window{
 	private void setShellArea() {
 		shellArea = new TextArea("", 10, 40);
 		shellArea.setBounds(250, 360, 630, 200);
-		shellArea.setFont(new Font("Arial", Font.PLAIN, 15));
+		shellArea.setFont(new Font("Arial", Font.PLAIN, 13));
 		shellArea.setEditable(false);
 		panel.add(shellArea);
 	}
@@ -198,7 +207,7 @@ public class MainWindow implements Window{
 
 		frame.addWindowListener(new WindowAdapter(){
 			public void windowClosing(WindowEvent e){
-				logArea.append("Trying to disconnect\n");
+				log("Trying to disconnect");
 				sendRequest(disconnectRequest, host);
 				try {
 					Thread.sleep(1000);

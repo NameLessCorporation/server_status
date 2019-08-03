@@ -47,10 +47,10 @@ public class Server extends Thread {
 				url += key + "=" + pc.get(key) + "&";
 			}
 			URL server = new URL(url);
-			frame.logArea.append("Trying to connect\n");
+			frame.log("Trying to connect");
 			InputStream is = server.openStream();
 		} catch (IOException e) {
-			frame.logArea.append(e.toString() + "\n");
+			frame.log(e.toString());
 		}
 	}
 
@@ -61,7 +61,7 @@ public class Server extends Thread {
         } catch (IOException e) {
 			Notifications.showErrorNotification("Error", e.getMessage());
         }
-		frame.logArea.append("Listening for connection on port " + CLIENT_PORT + "\n");
+		frame.log("Listening for connection on port " + CLIENT_PORT);
         while (true) {
 			try (Socket socket = Objects.requireNonNull(server).accept()) {
 				BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -69,7 +69,7 @@ public class Server extends Thread {
 						      .replace(" HTTP/1.1", "");
 				if (!line.equals("GET /favicon.ico")) {
 					if (!isDataReceived) {
-						frame.logArea.append("Data received\n");
+						frame.log("Data received");
 						frame.statusLabel.setText("Status: connected");
 						isDataReceived = true;
 					}
@@ -101,12 +101,12 @@ public class Server extends Thread {
 					break;
 				}
 				case "print": {
-					frame.logArea.append(data.get("data"));
+					frame.log(data.get("data"));
 					break;
 				}
 				case "disconnected": {
 					frame.statusLabel.setText("Status: disconnected");
-					frame.logArea.append("Disconnected\n");
+					frame.log("Disconnected");
 					frame.ipList.setModel(new DefaultListModel<>());
 					frame.usersList.setModel(new DefaultListModel<>());
 					frame.disconnectButton.setEnabled(false);
@@ -115,7 +115,7 @@ public class Server extends Thread {
 				}
 				case "serverStopped": {
 					frame.statusLabel.setText("Status: server was stopped");
-					frame.logArea.append("Server was stopped\n");
+					frame.log("Server was stopped");
 					frame.ipList.setModel(new DefaultListModel<>());
 					frame.usersList.setModel(new DefaultListModel<>());
 					frame.disconnectButton.setEnabled(false);
