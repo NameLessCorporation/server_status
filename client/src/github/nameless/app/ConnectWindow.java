@@ -175,8 +175,8 @@ public class ConnectWindow implements Window {
 			try {
 				sendRequest(request, ip);
 				server.setConnectRequest(request);
-				window.logArea.append("Trying to connect to " + ip + "\n");
-				window.logArea.append("Waiting for data from " + ip + "\n");
+				window.log("Trying to connect to " + ip);
+				window.log("Waiting for data from " + ip);
 				window.statusLabel.setText("Status: connecting");
 				frame.setVisible(false);
 				window.setHost(ip);
