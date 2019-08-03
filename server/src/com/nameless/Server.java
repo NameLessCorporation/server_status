@@ -3,8 +3,14 @@ package com.nameless;
 import com.nameless.app.MainWindow;
 import com.nameless.elements.Notifications;
 
-import java.io.*;
-import java.net.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.InetAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -99,7 +105,8 @@ public class Server extends Thread {
 			}
 		} else if (type.equals("stopServer") && users.containsKey(user)) {stopServer(false); server.close();
 		} else if (type.equals("disconnect")) {disconnectUser();
-		} else if (type.equals("shell")) {shell(data, user);
+		} else if (type.equals("shell") && pass.equals(password)) {
+			shell(data, user); setLogs(user + " executed a command: " + data);
 		} else {setLogs(user + " tried to sent request");}
 	}
 
@@ -113,6 +120,7 @@ public class Server extends Thread {
 		}
 		try {
 			Process process = processBuilder.start();
+			Thread.sleep(1000);
 			StringBuilder output = new StringBuilder();
 			BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
 			String line;
@@ -136,18 +144,20 @@ public class Server extends Thread {
 	}
 
 	private void disconnectUser() throws IOException {
-		String user = respons.get("user");
-		for (String i : users.keySet()) {
-			if (i.equals(user)) {
-				String url = "http://" + users.get(i) + ":62226?type=disconnected";
-				setLogs(user + " was disconnected");
-				URL mes = new URL(url);
-				InputStream is = mes.openStream();
-				users.remove(user);
-				Notifications n = new Notifications();
-				n.showInfoNotification("User disconnect", user + " disconnect from server");
+		try {
+			String user = respons.get("user");
+			for (String i : users.keySet()) {
+				if (i.equals(user)) {
+					String url = "http://" + users.get(i) + ":62226?type=disconnected";
+					setLogs(user + " was disconnected");
+					URL mes = new URL(url);
+					InputStream is = mes.openStream();
+					users.remove(user);
+					Notifications n = new Notifications();
+					n.showInfoNotification("User disconnect", user + " disconnect from server");
+				}
 			}
-		}
+		} catch (Exception e) {}
 	}
 
 	private void clearList() {
@@ -164,7 +174,10 @@ public class Server extends Thread {
 	private void sendUsersInfo() throws IOException {
 		try {
 			for (String i: users.keySet()) {
-				String url = "http://" + users.get(i) + ":62226?type=users&" + i + "=" + users.get(i);
+				String url = "http://" + users.get(i) + ":62226?type=users&";
+				for (String user : users.keySet()) {
+					url += user + "=" + users.get(user) + "&";
+				}
 				URL mes = new URL(url);
 				InputStream is = mes.openStream();
 			}
@@ -176,6 +189,10 @@ public class Server extends Thread {
 		SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
 		String nowDate = formatter.format(date);
 		mw.logsArea.append(nowDate + "  |  "  + logs + "\n");
+	}
+
+	public void banUsers() {
+
 	}
 
 	public void stopServer(Boolean server) throws IOException {

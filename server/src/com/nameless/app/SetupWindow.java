@@ -5,9 +5,9 @@ import com.nameless.elements.Button;
 import com.nameless.elements.Field;
 import com.nameless.elements.Label;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ActionEvent;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import java.awt.Dimension;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 
@@ -57,16 +57,13 @@ public class SetupWindow implements Window {
 	}
 
 	public void start(Button start) {
-		ActionListener actionListener = new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				String passwordServer = password.getText();
-				server.setPassword(passwordServer);
-				try {
-					checkConnection(true, passwordServer);
-				} catch (IOException | InterruptedException ex) {
-					ex.printStackTrace();
-				}
+		ActionListener actionListener = e -> {
+			String passwordServer = password.getText();
+			server.setPassword(passwordServer);
+			try {
+				checkConnection(true, passwordServer);
+			} catch (IOException | InterruptedException ex) {
+				ex.printStackTrace();
 			}
 		};
 		start.addActionListener(actionListener);

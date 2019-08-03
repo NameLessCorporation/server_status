@@ -5,10 +5,16 @@ import com.nameless.Status;
 import com.nameless.elements.Button;
 import com.nameless.elements.Label;
 
-import javax.swing.*;
+import javax.swing.DefaultListModel;
+import javax.swing.JFrame;
+import javax.swing.JList;
+import javax.swing.JPanel;
 import javax.swing.border.LineBorder;
-import java.awt.*;
 
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.TextArea;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
@@ -65,6 +71,10 @@ public class MainWindow extends Thread implements Window {
 		Button clear = new Button(20, 95, 130, 32, "Clear log");
 		panel.add(clear);
 		clearLog(clear);
+
+		Button ban = new Button(20, 120, 130, 32, "Ban user");
+		panel.add(ban);
+		ban(ban);
 	}
 
 	@Override
@@ -112,6 +122,7 @@ public class MainWindow extends Thread implements Window {
 				usersModel.add(j, i);
 				j++;
 			}
+			Thread.sleep(1000);
 			usersList.setModel(usersModel);
 			ipList.setModel(ipModel);
 		} catch (Exception e) {
@@ -121,24 +132,21 @@ public class MainWindow extends Thread implements Window {
 	}
 
 	private void clearLog(Button add) {
-		ActionListener actionListener = new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				logsArea.setText("");
-			}
-		};
+		ActionListener actionListener = e -> logsArea.setText("");
+		add.addActionListener(actionListener);
+	}
+
+	public void ban(Button add) {
+		ActionListener actionListener = e -> server.banUsers();
 		add.addActionListener(actionListener);
 	}
 
 	public void stop(Button add) {
-		ActionListener actionListener = new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				try {
-					server.stopServer(true);
-				} catch (IOException ex) {
-					ex.printStackTrace();
-				}
+		ActionListener actionListener = e -> {
+			try {
+				server.stopServer(true);
+			} catch (IOException ex) {
+				ex.printStackTrace();
 			}
 		};
 		add.addActionListener(actionListener);
