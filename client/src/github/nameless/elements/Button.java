@@ -1,6 +1,6 @@
 package github.nameless.elements;
 
-import javax.swing.*;
+import javax.swing.JButton;
 
 public class Button extends JButton{
 	private Integer x, y;

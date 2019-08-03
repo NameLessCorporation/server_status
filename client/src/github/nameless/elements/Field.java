@@ -1,6 +1,6 @@
 package github.nameless.elements;
 
-import javax.swing.*;
+import javax.swing.JTextField;
 
 public class Field extends JTextField {
 	private Integer x, y;

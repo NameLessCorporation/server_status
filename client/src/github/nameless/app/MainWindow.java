@@ -1,16 +1,20 @@
 package github.nameless.app;
 
-import javax.swing.*;
+import javax.swing.JFrame;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.WindowConstants;
 import javax.swing.border.LineBorder;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.TextArea;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.HashMap;
 
@@ -19,12 +23,11 @@ import github.nameless.elements.Field;
 import github.nameless.elements.Label;
 
 public class MainWindow implements Window{
-	static JFrame frame;
-	private static JPanel panel;
+	JFrame frame;
+	JPanel panel;
 	JList<String> usersList, ipList;
 	Button disconnectButton;
-	Button stopButton;
-	Button sendButton;
+	Button stopButton, sendButton;
 	Label cpuInfoLabel;
 	Label ramInfoLabel;
 	Label netInfoLabel;
@@ -32,7 +35,7 @@ public class MainWindow implements Window{
 	TextArea logArea, shellArea;
 	String host, user;
 	Field shellCommand;
-	private static int port = 52225;
+	private final int SERVER_PORT = 52225;
 
 	Server server;
 
@@ -61,9 +64,9 @@ public class MainWindow implements Window{
 		ramInfoLabel = new Label(250, 35, "RAM:");
 		netInfoLabel = new Label(250, 60, "Internet:");
 		statusLabel = new Label(250, 85, "Status: not connected");
-		Label userLabel = new Label(8, 130, "Users:");
+		Label userLabel = new Label(8, 290, "Users:");
 
-		userLabel.setBounds(8, 130, 100, 15);
+		userLabel.setBounds(8, 190, 100, 15);
 
 		panel.add(userLabel);
 		panel.add(new Label(250, 110, "Log:"));
@@ -80,6 +83,10 @@ public class MainWindow implements Window{
 		stopButton = new Button(8, 60, 216, 30, "Stop server");
 		disconnectButton = new Button(8, 90, 216, 30, "Disconnect");
 		sendButton = new Button(790, 572, 100, 25, "Send");
+		Button clearLogsButton = new Button(8, 120, 216, 30, "Clear logs");
+		Button clearShellButton = new Button(8, 150, 216, 30, "Clear shell");
+
+
 		stopButton.addActionListener(e -> {
 			logArea.append("Trying to stopping server\n");
 			sendRequest(stopRequest, host);
@@ -96,10 +103,14 @@ public class MainWindow implements Window{
 				sendRequest(shellPackage, host);
 			}
 		});
+		clearLogsButton.addActionListener(e -> logArea.setText(""));
+		clearShellButton.addActionListener(e -> shellArea.setText(""));
 
 		panel.add(sendButton);
 		panel.add(stopButton);
 		panel.add(disconnectButton);
+		panel.add(clearLogsButton);
+		panel.add(clearShellButton);
 	}
 
 	@Override
@@ -115,9 +126,9 @@ public class MainWindow implements Window{
 		panel.add(shellCommand);
 	}
 
-	private static void sendRequest(HashMap<String, String> pc, String url) {
+	private void sendRequest(HashMap<String, String> pc, String url) {
 		try {
-			url = "http://" + url + ":" + port + "?";
+			url = "http://" + url + ":" + SERVER_PORT + "?";
 			for (String key : pc.keySet()) {
 				url += key + "=" + pc.get(key) + "&";
 			}
@@ -146,13 +157,13 @@ public class MainWindow implements Window{
 
 	private void setList() {
 		usersList = new JList();
-		usersList.setBounds(8, 150, 108, 300);
+		usersList.setBounds(8, 212, 108, 300);
 		usersList.setBorder(new LineBorder(Color.BLACK));
 		usersList.setSelectionMode(0);
 		panel.add(usersList);
 
 		ipList = new JList();
-		ipList.setBounds(116, 150, 108, 300);
+		ipList.setBounds(116, 212, 108, 300);
 		ipList.setBorder(new LineBorder(Color.BLACK));
 		ipList.setSelectionMode(0);
 		panel.add(ipList);

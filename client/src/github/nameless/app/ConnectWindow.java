@@ -1,6 +1,10 @@
 package github.nameless.app;
 
-import javax.swing.*;
+import javax.swing.DefaultListModel;
+import javax.swing.JFrame;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.WindowConstants;
 import java.awt.Dimension;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -19,12 +23,11 @@ import github.nameless.elements.Label;
 import github.nameless.elements.Button;
 
 public class ConnectWindow implements Window {
-	private static JFrame frame;
-	private static JPanel panel;
+	private JFrame frame;
+	private JPanel panel;
 	private DefaultListModel<String> connections;
 	private JList list;
 	private Field ipField;
-	private Field portField;
 	private Field userField;
 	private Field passField;
 	private Server server;
@@ -40,13 +43,11 @@ public class ConnectWindow implements Window {
 	public void setLabel() {
 		Label mainLabel = new Label(200, 12, "Server Control v0.1");
 		Label servIPLabel = new Label(15, 40, "Host Name (or IP address):");
-		Label portLabel = new Label(220, 40, "Port:");
 		Label userLabel = new Label(15, 110, "Username:");
 		Label passLabel = new Label(220, 110, "Password:");
 
 		panel.add(mainLabel);
 		panel.add(servIPLabel);
-//		panel.add(portLabel);
 		panel.add(userLabel);
 		panel.add(passLabel);
 	}
@@ -69,12 +70,10 @@ public class ConnectWindow implements Window {
 	@Override
 	public void setField() {
 		ipField = new Field(10, 60,285, 25);
-		portField = new Field(215, 60, 80, 25);
 		userField = new Field(10, 130, 200, 25);
 		passField = new Field(215, 130, 80, 25);
 
 		panel.add(ipField);
-//		panel.add(portField);
 		panel.add(userField);
 		panel.add(passField);
 	}

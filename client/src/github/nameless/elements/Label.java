@@ -1,7 +1,7 @@
 package github.nameless.elements;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JLabel;
+import java.awt.Font;
 
 public class Label extends JLabel {
 	private Integer x, y;

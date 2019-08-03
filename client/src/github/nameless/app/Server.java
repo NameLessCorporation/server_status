@@ -1,6 +1,6 @@
 package github.nameless.app;
 
-import javax.swing.*;
+import javax.swing.DefaultListModel;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,7 +16,7 @@ import java.util.Objects;
 public class Server extends Thread {
 
 	private MainWindow frame;
-	private int port = 62226;
+	private final int CLIENT_PORT = 62226;
 	String host;
 	private boolean isDataReceived = false;
 	ServerSocket server = null;
@@ -57,11 +57,11 @@ public class Server extends Thread {
 	@Override
     public void run() {
         try {
-            server = new ServerSocket(port);
+            server = new ServerSocket(CLIENT_PORT);
         } catch (IOException e) {
 			Notifications.showErrorNotification("Error", e.getMessage());
         }
-		frame.logArea.append("Listening for connection on port " + port + "\n");
+		frame.logArea.append("Listening for connection on port " + CLIENT_PORT + "\n");
         while (true) {
 			try (Socket socket = Objects.requireNonNull(server).accept()) {
 				BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -152,17 +152,17 @@ public class Server extends Thread {
 		}
 	}
 
-	public void execute(HashMap<String, String> data) {
+	private void execute(HashMap<String, String> data) {
 		String command = data.get("command");
 		String arg = data.get("args");
 		if (command.equals("showNotification")) Notifications.showInfoNotification("Information from server", arg);
 	}
 
-	public void setFrame(MainWindow frame) {
+	void setFrame(MainWindow frame) {
 		this.frame = frame;
 	}
 
-	public HashMap<String, String> getData(String request) {
+	private HashMap<String, String> getData(String request) {
 		String[] dataArray = request.split("&");
 		HashMap<String, String> response = new HashMap<>();
 		for (int i = 0; i < dataArray.length; i++) {
