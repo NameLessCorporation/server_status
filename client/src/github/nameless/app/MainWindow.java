@@ -109,6 +109,7 @@ public class MainWindow implements Window{
 				HashMap<String, String> shellPackage = new HashMap<>();
 				shellPackage.put("type", "shell");
 				shellPackage.put("data", shellCommand.getText().trim());
+				shellArea.append(">>> " + shellCommand.getText().trim() + "\n");
 				sendRequest(shellPackage, host);
 			}
 		});
@@ -207,11 +208,13 @@ public class MainWindow implements Window{
 
 		frame.addWindowListener(new WindowAdapter(){
 			public void windowClosing(WindowEvent e){
-				log("Trying to disconnect");
-				sendRequest(disconnectRequest, host);
-				try {
-					Thread.sleep(1000);
-				} catch (InterruptedException ignored) {}
+				if (!server.disconnected) {
+					log("Trying to disconnect");
+					sendRequest(disconnectRequest, host);
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException ignored) {}
+				}
 			}
 		});
 

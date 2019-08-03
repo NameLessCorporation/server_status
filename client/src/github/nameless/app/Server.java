@@ -19,6 +19,7 @@ public class Server extends Thread {
 	private final int CLIENT_PORT = 62226;
 	String host;
 	private boolean isDataReceived = false;
+	boolean disconnected = false;
 	ServerSocket server = null;
 	HashMap<String, String> connectRequest;
 
@@ -111,6 +112,7 @@ public class Server extends Thread {
 					frame.usersList.setModel(new DefaultListModel<>());
 					frame.disconnectButton.setEnabled(false);
 					frame.stopButton.setEnabled(false);
+					disconnected = true;
 					break;
 				}
 				case "serverStopped": {
@@ -120,6 +122,7 @@ public class Server extends Thread {
 					frame.usersList.setModel(new DefaultListModel<>());
 					frame.disconnectButton.setEnabled(false);
 					frame.stopButton.setEnabled(false);
+					disconnected = true;
 					break;
 				}
 				case "users": {
