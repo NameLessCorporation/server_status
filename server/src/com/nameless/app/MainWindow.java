@@ -14,19 +14,23 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.HashMap;
 
-public class MainWindow extends Thread implements Window{
+public class MainWindow extends Thread implements Window {
 	private JFrame frame;
 	private JPanel panel;
+	private Server server;
 	private String info = "server is working";
 
-	public static Label s;
-	public static JList ipList;
-	public static JList usersList;
-	public static DefaultListModel<String> usersModel;
-	public static DefaultListModel<String> ipModel;
+	public Label s;
+	public JList ipList;
+	public JList usersList;
+	public TextArea logsArea;
+	public DefaultListModel<String> ipModel;
+	public DefaultListModel<String> usersModel;
+
 
 	public MainWindow(String name, Integer width,
-					  Integer height, String passwordServer) throws IOException, InterruptedException {
+					  Integer height, String passwordServer, Server server) throws IOException, InterruptedException {
+		this.server = server;
 		init(name, width, height);
 	}
 
@@ -47,13 +51,20 @@ public class MainWindow extends Thread implements Window{
 
 		Label ipLabel = new Label(410, 10, "IP:");
 		panel.add(ipLabel);
+
+		Label logs = new Label(200, 340, "Logs:");
+		panel.add(logs);
 	}
 
 	@Override
 	public void setButton() {
-		Button stop = new Button(10, 70,140, 32, "Stop server");
+		Button stop = new Button(20, 70,130, 32, "Stop server");
 		panel.add(stop);
 		stop(stop);
+
+		Button clear = new Button(20, 95, 130, 32, "Clear log");
+		panel.add(clear);
+		clearLog(clear);
 	}
 
 	@Override
@@ -65,6 +76,15 @@ public class MainWindow extends Thread implements Window{
 	@Override
 	public void setField() {
 
+	}
+
+	public void setArea() {
+		logsArea = new TextArea("", 10, 40);
+		logsArea.setBounds(200, 360, 410, 150);
+		logsArea.setFont(new Font("Arial", Font.PLAIN, 12));
+		logsArea.setEditable(false);
+		panel.add(logsArea);
+		panel.add(logsArea);
 	}
 
 	public void setList() {
@@ -81,18 +101,33 @@ public class MainWindow extends Thread implements Window{
 		panel.add(ipList);
 	}
 
-	public static void getUsers() {
-		HashMap<String, String> users = Server.users;
-		usersModel = new DefaultListModel<>();
-		ipModel = new DefaultListModel<>();
-		int j = 0;
-		for (String i: users.keySet()) {
-			ipModel.add(j, users.get(i));
-			usersModel.add(j, i);
-			j++;
+	public void getUsers() {
+		try {
+			HashMap<String, String> users = server.users;
+			usersModel = new DefaultListModel<>();
+			ipModel = new DefaultListModel<>();
+			int j = 0;
+			for (String i : users.keySet()) {
+				ipModel.add(j, users.get(i));
+				usersModel.add(j, i);
+				j++;
+			}
+			usersList.setModel(usersModel);
+			ipList.setModel(ipModel);
+		} catch (Exception e) {
+			System.out.println(e);
 		}
-		usersList.setModel(usersModel);
-		ipList.setModel(ipModel);
+
+	}
+
+	private void clearLog(Button add) {
+		ActionListener actionListener = new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				logsArea.setText("");
+			}
+		};
+		add.addActionListener(actionListener);
 	}
 
 	public void stop(Button add) {
@@ -100,7 +135,7 @@ public class MainWindow extends Thread implements Window{
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				try {
-					Server.stopServer(true);
+					server.stopServer(true);
 				} catch (IOException ex) {
 					ex.printStackTrace();
 				}
@@ -109,8 +144,7 @@ public class MainWindow extends Thread implements Window{
 		add.addActionListener(actionListener);
 	}
 
-	private void init(String name, Integer width, Integer height)
-			throws IOException {
+	private void init(String name, Integer width, Integer height) throws IOException {
 		setDecoration();
 		frame = new JFrame(name);
 		frame.setPreferredSize(new Dimension(width, height));
@@ -119,6 +153,7 @@ public class MainWindow extends Thread implements Window{
 		setLabel();
 		setList();
 		setButton();
+		setArea();
 		frame.add(panel);
 		frame.pack();
 		frame.setLocationRelativeTo(null);

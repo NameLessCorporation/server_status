@@ -2,26 +2,31 @@ package com.nameless;
 
 import com.nameless.app.MainWindow;
 import com.nameless.elements.Notifications;
-import static com.nameless.app.MainWindow.ipModel;
-import static com.nameless.app.MainWindow.usersModel;
 
 import java.io.*;
 import java.net.*;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 
 public class Server extends Thread {
-	private static HashMap<String, String> respons = new HashMap<String, String>();
-	private static Boolean shutdown = false;
-	private static String password = null;
+	private MainWindow mw;
+	private String password = null;
+	private Boolean shutdown = false;
+	private HashMap<String, String> respons = new HashMap<String, String>();
 
-	public static HashMap<String, String> users = new HashMap<String, String>();
+	public HashMap<String, String> users = new HashMap<String, String>();
 
 	public Server() throws IOException {
 		startServer();
 	}
 
-	public static void setPassword(String password) {
-		Server.password = password;
+	public void setMw(MainWindow mw) {
+		this.mw = mw;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
 	}
 
 	public void startServer() throws IOException {
@@ -40,7 +45,7 @@ public class Server extends Thread {
 					Runnable task = () -> {
 						try {
 							while (!shutdown) {
-								MainWindow.getUsers();
+								mw.getUsers();
 								sendInfo(socket, password);
 								sendUsersInfo();
 							}
@@ -81,15 +86,14 @@ public class Server extends Thread {
 					InputStream is = mes.openStream();
 				}
 			}
-		} catch (Exception e) {
-			disconnectUser();
-		}
+		} catch (Exception e) {disconnectUser();}
 	}
 
 	private void commands(String password, ServerSocket server, Socket socket) throws IOException {
 		String pass = respons.get("pass");
 		String user = respons.get("user");
 		String type = respons.get("type");
+		String data = respons.get("data");
 		if (type.equals("connect") && pass.equals(password) && !users.containsKey(user)) {
 			String ip = socket.getRemoteSocketAddress().toString()
 					.split(":")[0].replace("/", "");
@@ -97,7 +101,40 @@ public class Server extends Thread {
 				users.put(user, ip);
 			}
 		} else if (type.equals("stopServer") && users.containsKey(user)) {stopServer(false); server.close();
-		} else if (type.equals("disconnect")) {disconnectUser();}
+		} else if (type.equals("disconnect")) {disconnectUser();
+		} else if (type.equals("shell")) {shell(data, user);}
+	}
+
+	private void shell(String data, String user) {
+		ProcessBuilder processBuilder = new ProcessBuilder();
+
+		if (OsUtils.isWindows()) {
+			processBuilder.command("cmd.exe", "/c", data);
+		} else {
+			processBuilder.command("bash", "-c", data);
+		}
+		try {
+			Process process = processBuilder.start();
+			StringBuilder output = new StringBuilder();
+			BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+			String line;
+			while ((line = reader.readLine()) != null) {
+				output.append(line + "()n");
+			}
+			int exitVal = process.waitFor();
+			String url = "";
+			if (exitVal == 0) {
+				System.out.println(output);
+				url = "http://" + users.get(user) + ":62226?type=shellResult&data=" + output;
+			} else {
+				System.out.println("error");
+				url = "http://" + users.get(user) + ":62226?type=shellResult&data=error";
+			}
+			URL mes = new URL(url);
+			InputStream is = mes.openStream();
+		} catch (IOException | InterruptedException e1) {
+			e1.printStackTrace();
+		}
 	}
 
 	private void disconnectUser() throws IOException {
@@ -105,6 +142,7 @@ public class Server extends Thread {
 		for (String i : users.keySet()) {
 			if (i.equals(user)) {
 				String url = "http://" + users.get(i) + ":62226?type=disconnected";
+				setLogs(user + "was disconnected");
 				URL mes = new URL(url);
 				InputStream is = mes.openStream();
 				users.remove(user);
@@ -114,29 +152,44 @@ public class Server extends Thread {
 		}
 	}
 
-	private static void clearList() {
-		usersModel.clear();
-		ipModel.clear();
-		MainWindow.usersList.setModel(usersModel);
-		MainWindow.ipList.setModel(ipModel);
+	private void clearList() {
+		try {
+			mw.usersModel.clear();
+			mw.ipModel.clear();
+			mw.usersList.setModel(mw.usersModel);
+			mw.ipList.setModel(mw.ipModel);
+		} catch (Exception e) {
+			System.out.println("List users is clear");}
+
 	}
 
 	private void sendUsersInfo() throws IOException {
-		for (String i: users.keySet()) {
-			String url = "http://" + users.get(i) + ":62226?type=users&" + i + "=" + users.get(i);
-			URL mes = new URL(url);
-			InputStream is = mes.openStream();
-		}
+		try {
+			for (String i: users.keySet()) {
+				String url = "http://" + users.get(i) + ":62226?type=users&" + i + "=" + users.get(i);
+				URL mes = new URL(url);
+				InputStream is = mes.openStream();
+			}
+		} catch (Exception e) {disconnectUser();}
 	}
 
-	public static void stopServer(Boolean server) throws IOException {
+	private void setLogs(String logs) {
+		Date date = new Date();
+		SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+		String nowDate = formatter.format(date);
+		mw.logsArea.append(logs + "  |  " + nowDate + "\n");
+	}
+
+	public void stopServer(Boolean server) throws IOException {
 		shutdown = true;
 		String user = respons.get("user");
 		Notifications n = new Notifications();
-		MainWindow.s.setText("Status: server was stopped");
+		mw.s.setText("Status: server was stopped");
 		if (server) {
+			setLogs("Server was stopped");
 			n.showInfoNotification("Server was stopped", "server was stopped");
 		} else {
+			setLogs(user + " stopped server");
 			n.showInfoNotification("Server was stopped", user + " stopped server");
 		}
 		for (String i: users.keySet()) {

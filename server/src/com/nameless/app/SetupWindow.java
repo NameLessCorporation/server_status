@@ -14,6 +14,7 @@ import java.io.IOException;
 public class SetupWindow implements Window {
 	private JFrame frame;
 	private JPanel panel;
+	private Server server;
 	private Field password;
 
 	public SetupWindow(String name, Integer width, Integer height, Boolean isEnter) throws IOException {
@@ -25,7 +26,8 @@ public class SetupWindow implements Window {
 		if (isEnter) {
 			frame.setVisible(false);
 			MainWindow mw = new MainWindow("Server - NameLess",
-											900, 600, passwordServer);
+											900, 600, passwordServer, server);
+			server.setMw(mw);
 		}
 	}
 
@@ -59,7 +61,7 @@ public class SetupWindow implements Window {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				String passwordServer = password.getText();
-				Server.setPassword(passwordServer);
+				server.setPassword(passwordServer);
 				try {
 					checkConnection(true, passwordServer);
 				} catch (IOException | InterruptedException ex) {
@@ -90,7 +92,7 @@ public class SetupWindow implements Window {
 		frame.setResizable(false);
 		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
-		Server server = new Server();
+		server = new Server();
 	}
 
 }
