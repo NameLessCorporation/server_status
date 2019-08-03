@@ -15,13 +15,13 @@ import java.io.IOException;
 import java.util.HashMap;
 
 public class MainWindow extends Thread implements Window {
-	private JFrame frame;
 	private JPanel panel;
 	private Server server;
 	private String info = "server is working";
 
 	public Label s;
 	public JList ipList;
+	public JFrame frame;
 	public JList usersList;
 	public TextArea logsArea;
 	public DefaultListModel<String> ipModel;
@@ -29,7 +29,7 @@ public class MainWindow extends Thread implements Window {
 
 
 	public MainWindow(String name, Integer width,
-					  Integer height, String passwordServer, Server server) throws IOException, InterruptedException {
+					  Integer height, Server server) throws IOException, InterruptedException {
 		this.server = server;
 		init(name, width, height);
 	}
@@ -81,7 +81,7 @@ public class MainWindow extends Thread implements Window {
 	public void setArea() {
 		logsArea = new TextArea("", 10, 40);
 		logsArea.setBounds(200, 360, 410, 150);
-		logsArea.setFont(new Font("Arial", Font.PLAIN, 12));
+		logsArea.setFont(new Font("Arial", Font.PLAIN, 13));
 		logsArea.setEditable(false);
 		panel.add(logsArea);
 		panel.add(logsArea);
@@ -158,7 +158,6 @@ public class MainWindow extends Thread implements Window {
 		frame.pack();
 		frame.setLocationRelativeTo(null);
 		frame.setResizable(false);
-		frame.setVisible(true);
 	}
 
 }

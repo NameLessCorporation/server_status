@@ -16,8 +16,10 @@ public class SetupWindow implements Window {
 	private JPanel panel;
 	private Server server;
 	private Field password;
+	private MainWindow mw;
 
-	public SetupWindow(String name, Integer width, Integer height, Boolean isEnter) throws IOException {
+	public SetupWindow(String name, Integer width, Integer height, Boolean isEnter)
+			throws IOException, InterruptedException {
 		init(name, width, height);
 	}
 
@@ -25,9 +27,7 @@ public class SetupWindow implements Window {
 			throws IOException, InterruptedException {
 		if (isEnter) {
 			frame.setVisible(false);
-			MainWindow mw = new MainWindow("Server - NameLess",
-											900, 600, passwordServer, server);
-			server.setMw(mw);
+			mw.frame.setVisible(true);
 		}
 	}
 
@@ -78,7 +78,8 @@ public class SetupWindow implements Window {
 		panel.setLayout(null);
 	}
 
-	private void init(String name, Integer width, Integer height) throws IOException {
+	private void init(String name, Integer width, Integer height) throws IOException, InterruptedException {
+		server = new Server();
 		setDecoration();
 		frame = new JFrame(name);
 		frame.setPreferredSize(new Dimension(width, height));
@@ -92,7 +93,10 @@ public class SetupWindow implements Window {
 		frame.setResizable(false);
 		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
-		server = new Server();
+		mw = new MainWindow("Server - NameLess",
+				900, 600, server);
+		server.setMw(mw);
+		server.startServer();
 	}
 
 }

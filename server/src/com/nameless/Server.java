@@ -11,15 +11,11 @@ import java.util.HashMap;
 
 public class Server extends Thread {
 	private MainWindow mw;
-	private String password = null;
+	private String password = "";
 	private Boolean shutdown = false;
 	private HashMap<String, String> respons = new HashMap<String, String>();
 
 	public HashMap<String, String> users = new HashMap<String, String>();
-
-	public Server() throws IOException {
-		startServer();
-	}
 
 	public void setMw(MainWindow mw) {
 		this.mw = mw;
@@ -99,10 +95,12 @@ public class Server extends Thread {
 					.split(":")[0].replace("/", "");
 			if (!users.containsValue(ip)) {
 				users.put(user, ip);
+				setLogs(user + " connected");
 			}
 		} else if (type.equals("stopServer") && users.containsKey(user)) {stopServer(false); server.close();
 		} else if (type.equals("disconnect")) {disconnectUser();
-		} else if (type.equals("shell")) {shell(data, user);}
+		} else if (type.equals("shell")) {shell(data, user);
+		} else {setLogs(user + " tried to sent request");}
 	}
 
 	private void shell(String data, String user) {
@@ -142,7 +140,7 @@ public class Server extends Thread {
 		for (String i : users.keySet()) {
 			if (i.equals(user)) {
 				String url = "http://" + users.get(i) + ":62226?type=disconnected";
-				setLogs(user + "was disconnected");
+				setLogs(user + " was disconnected");
 				URL mes = new URL(url);
 				InputStream is = mes.openStream();
 				users.remove(user);
@@ -177,7 +175,7 @@ public class Server extends Thread {
 		Date date = new Date();
 		SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
 		String nowDate = formatter.format(date);
-		mw.logsArea.append(logs + "  |  " + nowDate + "\n");
+		mw.logsArea.append(nowDate + "  |  "  + logs + "\n");
 	}
 
 	public void stopServer(Boolean server) throws IOException {
