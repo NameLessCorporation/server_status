@@ -116,6 +116,7 @@ public class ConnectWindow implements Window {
 				writer.close();
 			} catch (IOException e1) {
 				Notifications.showErrorNotification("Error", e1.toString());
+				window.logToFile(e1.toString());
 			}
 		}
 	}
@@ -132,7 +133,7 @@ public class ConnectWindow implements Window {
 					out.close();
 				}
 				catch (IOException e) {
-					System.out.println("Exception Occurred" + e);
+					window.logToFile(e.toString());
 				}
 				getConnections();
 			}
@@ -159,6 +160,7 @@ public class ConnectWindow implements Window {
 				out.close();
 			} catch (IOException e) {
 				Notifications.showErrorNotification("Error", e.toString());
+				window.logToFile(e.toString());
 			}
 		} else Notifications.showWarningNotification("Warning", "Please select connection from list");
 	}
@@ -188,6 +190,7 @@ public class ConnectWindow implements Window {
 				window.setServer(server);
 			} catch (IOException e) {
 				Notifications.showErrorNotification("Error", e.toString());
+				window.logToFile(e.toString());
 			}
 		} else Notifications.showErrorNotification("Error", "Some fields are empty!");
 	}

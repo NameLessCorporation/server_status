@@ -9,10 +9,10 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.TextArea;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -53,6 +53,23 @@ public class MainWindow implements Window{
 		SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
 		String nowDate = formatter.format(date);
 		logArea.append(nowDate + "  |  " + log + "\n");
+		logToFile(log);
+	}
+
+	public void logToFile(String log) {
+		Date date = new Date();
+		SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+		String nowDate = formatter.format(date);
+		FileWriter fw = null;
+		try {
+			fw = new FileWriter("logs.txt", true);
+			BufferedWriter bw = new BufferedWriter(fw);
+			bw.write(nowDate + "  |  " + log + "\n");
+			bw.newLine();
+			bw.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public void setHost(String host) {
@@ -147,6 +164,7 @@ public class MainWindow implements Window{
 			InputStream is = server.openStream();
 		} catch (IOException e) {
 			Notifications.showErrorNotification("Error", e.toString());
+			logToFile(e.toString());
 		}
 	}
 

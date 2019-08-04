@@ -52,6 +52,7 @@ public class Server extends Thread {
 			InputStream is = server.openStream();
 		} catch (IOException e) {
 			frame.log(e.toString());
+			frame.logToFile(e.toString());
 		}
 	}
 
@@ -61,6 +62,7 @@ public class Server extends Thread {
             server = new ServerSocket(CLIENT_PORT);
         } catch (IOException e) {
 			Notifications.showErrorNotification("Error", e.getMessage());
+			frame.logToFile(e.toString());
         }
 		frame.log("Listening for connection on port " + CLIENT_PORT);
         while (true) {
@@ -80,6 +82,7 @@ public class Server extends Thread {
 				String httpResponse = "HTTP/1.1 200 OK\r\n\r\n" + "Server started";
 				socket.getOutputStream().write(httpResponse.getBytes(StandardCharsets.UTF_8));
 			} catch (IOException e) {
+				frame.logToFile(e.toString());
 				Notifications.showErrorNotification("Error", e.toString());
 			}
 		}
