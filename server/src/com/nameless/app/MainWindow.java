@@ -17,8 +17,11 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.TextArea;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.util.HashMap;
+
 
 public class MainWindow extends Thread implements Window {
 	private JPanel panel;
@@ -26,6 +29,8 @@ public class MainWindow extends Thread implements Window {
 	private String info = "server is working";
 
 	public Label s;
+	public Button ban;
+	public Button stop;
 	public JList ipList;
 	public JFrame frame;
 	public Label ipLabel;
@@ -67,7 +72,7 @@ public class MainWindow extends Thread implements Window {
 
 	@Override
 	public void setButton() {
-		Button stop = new Button(20, 70,130, 32, "Stop server");
+		stop = new Button(20, 70,130, 32, "Stop server");
 		panel.add(stop);
 		stop(stop);
 
@@ -75,7 +80,7 @@ public class MainWindow extends Thread implements Window {
 		panel.add(clear);
 		clearLog(clear);
 
-		Button ban = new Button(20, 120, 130, 32, "Disconnect user");
+		ban = new Button(20, 120, 130, 32, "Disconnect user");
 		panel.add(ban);
 		ban(ban);
 	}
@@ -165,6 +170,16 @@ public class MainWindow extends Thread implements Window {
 		add.addActionListener(actionListener);
 	}
 
+	public void closeWindow() {
+		frame.addWindowListener(new WindowAdapter(){
+			public void windowClosing(WindowEvent e){
+				try {
+					server.stopServer(true);
+				} catch (IOException ex) {}
+			}
+		});
+	}
+
 	public void stop(Button add) {
 		ActionListener actionListener = e -> {
 			try {
@@ -186,6 +201,7 @@ public class MainWindow extends Thread implements Window {
 		setList();
 		setButton();
 		setArea();
+		closeWindow();
 		frame.add(panel);
 		frame.pack();
 		frame.setLocationRelativeTo(null);

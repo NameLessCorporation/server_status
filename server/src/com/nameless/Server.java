@@ -16,6 +16,7 @@ import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.concurrent.ExecutionException;
 
 public class Server extends Thread {
 	private MainWindow mw;
@@ -158,6 +159,8 @@ public class Server extends Thread {
 					users.remove(user);
 					Notifications n = new Notifications();
 					n.showInfoNotification("User disconnect", user + " disconnect from server");
+					mw.ipLabel.setText("IP: ");
+					mw.usersLabel.setText("Users:");
 				}
 			}
 		} catch (Exception e) {}
@@ -217,23 +220,27 @@ public class Server extends Thread {
 	}
 
 	public void stopServer(Boolean server) throws IOException {
-		shutdown = true;
-		String user = respons.get("user");
-		Notifications n = new Notifications();
-		mw.s.setText("Status: server was stopped");
-		if (server) {
-			setLogs("Server was stopped");
-			n.showInfoNotification("Server was stopped", "server was stopped");
-		} else {
-			setLogs(user + " stopped server");
-			n.showInfoNotification("Server was stopped", user + " stopped server");
-		}
-		for (String i: users.keySet()) {
-			String url = "http://" + users.get(i) + ":62226?type=serverStopped";
-			URL mes = new URL(url);
-			InputStream is = mes.openStream();
-		}
-		clearList();
+		try {
+			shutdown = true;
+			String user = respons.get("user");
+			Notifications n = new Notifications();
+			mw.s.setText("Status: server was stopped");
+			if (server) {
+				setLogs("Server was stopped");
+				n.showInfoNotification("Server was stopped", "server was stopped");
+			} else {
+				setLogs(user + " stopped server");
+				n.showInfoNotification("Server was stopped", user + " stopped server");
+			}
+			for (String i : users.keySet()) {
+				String url = "http://" + users.get(i) + ":62226?type=serverStopped";
+				URL mes = new URL(url);
+				InputStream is = mes.openStream();
+			}
+			mw.stop.setEnabled(false);
+			mw.ban.setEnabled(false);
+			clearList();
+		} catch (Exception e) {}
 	}
 
 }
