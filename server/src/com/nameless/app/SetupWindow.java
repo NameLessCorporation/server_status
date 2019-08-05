@@ -23,8 +23,7 @@ public class SetupWindow implements Window {
 		init(name, width, height);
 	}
 
-	public void checkConnection(Boolean isEnter, String passwordServer)
-			throws IOException, InterruptedException {
+	public void checkConnection(Boolean isEnter, String passwordServer) {
 		if (isEnter) {
 			frame.setVisible(false);
 			mw.frame.setVisible(true);
@@ -60,11 +59,7 @@ public class SetupWindow implements Window {
 		ActionListener actionListener = e -> {
 			String passwordServer = password.getText();
 			server.setPassword(passwordServer);
-			try {
-				checkConnection(true, passwordServer);
-			} catch (IOException | InterruptedException ex) {
-				ex.printStackTrace();
-			}
+			checkConnection(true, passwordServer);
 		};
 		start.addActionListener(actionListener);
 	}

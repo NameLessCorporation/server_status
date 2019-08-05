@@ -32,7 +32,7 @@ public class MainWindow extends Thread implements Window {
 	private String info = "server is working";
 
 	public Label s;
-	public Button ban;
+	public Button disconnect;
 	public Button stop;
 	public JList ipList;
 	public JFrame frame;
@@ -46,7 +46,7 @@ public class MainWindow extends Thread implements Window {
 
 
 	public MainWindow(String name, Integer width,
-					  Integer height, Server server) throws IOException, InterruptedException {
+					  Integer height, Server server) throws IOException {
 		this.server = server;
 		init(name, width, height);
 	}
@@ -83,7 +83,11 @@ public class MainWindow extends Thread implements Window {
 		panel.add(clear);
 		clearLog(clear);
 
-		ban = new Button(20, 120, 130, 32, "Disconnect user");
+		disconnect = new Button(20, 120, 130, 32, "Disconnect user");
+		panel.add(disconnect);
+		disconnect(disconnect);
+
+		Button ban = new Button(20, 145, 130, 32, "Ban user");
 		panel.add(ban);
 		ban(ban);
 	}
@@ -132,13 +136,8 @@ public class MainWindow extends Thread implements Window {
 
 	private void banWindow(JMenuItem banMenu) {
 		ActionListener actionListener = e -> {
-			try {
-				BanWindow bw = new BanWindow("Ban list", 200, 300, server);
-			} catch (IOException ex) {
-				ex.printStackTrace();
-			} catch (InterruptedException ex) {
-				ex.printStackTrace();
-			}
+			BanWindow bw = new BanWindow("Ban list", 200, 280, server);
+			server.usersList.setModel(server.usersBanModel);
 		};
 		banMenu.addActionListener(actionListener);
 	}
@@ -163,12 +162,20 @@ public class MainWindow extends Thread implements Window {
 
 	}
 
+	private void ban(Button add) {
+		ActionListener actionListener = e -> {
+			Integer len = server.usersBanModel.size();
+			server.usersBanModel.add(len, server.userBan);
+		};
+		add.addActionListener(actionListener);
+	}
+
 	private void clearLog(Button add) {
 		ActionListener actionListener = e -> logsArea.setText("");
 		add.addActionListener(actionListener);
 	}
 
-	public void ban(Button add) {
+	public void disconnect(Button add) {
 		Notifications n = new Notifications();
 		ActionListener actionListener = e -> {
 			if (!server.userBan.isEmpty()) {

@@ -3,9 +3,16 @@ package com.nameless;
 import com.nameless.app.MainWindow;
 import com.nameless.elements.Notifications;
 
+import javax.swing.DefaultListModel;
+import javax.swing.JList;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -21,6 +28,8 @@ public class Server extends Thread {
 	private HashMap<String, String> respons = new HashMap<String, String>();
 
 	public String userBan = "";
+	public JList usersList;
+	public DefaultListModel<String> usersBanModel = new DefaultListModel<>();
 	public HashMap<String, String> users = new HashMap<String, String>();
 
 	public void setMw(MainWindow mw) {
@@ -245,7 +254,7 @@ public class Server extends Thread {
 				InputStream is = mes.openStream();
 			}
 			mw.stop.setEnabled(false);
-			mw.ban.setEnabled(false);
+			mw.disconnect.setEnabled(false);
 			clearList();
 		} catch (Exception e) {}
 	}
