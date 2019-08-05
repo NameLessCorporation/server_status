@@ -9,6 +9,9 @@ import com.nameless.elements.Notifications;
 import javax.swing.DefaultListModel;
 import javax.swing.JFrame;
 import javax.swing.JList;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.border.LineBorder;
 
@@ -96,7 +99,7 @@ public class MainWindow extends Thread implements Window {
 
 	}
 
-	public void setArea() {
+	private void setArea() {
 		logsArea = new TextArea("", 10, 40);
 		logsArea.setBounds(200, 360, 410, 150);
 		logsArea.setFont(new Font("Arial", Font.PLAIN, 13));
@@ -105,7 +108,7 @@ public class MainWindow extends Thread implements Window {
 		panel.add(logsArea);
 	}
 
-	public void setList() {
+	private void setList() {
 		usersList = new JList();
 		usersList.setBounds(200, 30, 200, 300);
 		usersList.setBorder(new LineBorder(Color.BLACK));
@@ -115,6 +118,29 @@ public class MainWindow extends Thread implements Window {
 		ipList.setBounds(410, 30, 200, 300);
 		ipList.setBorder(new LineBorder(Color.BLACK));
 		panel.add(ipList);
+	}
+
+	private void setMenu() {
+		JMenuBar menuBar = new JMenuBar();
+		JMenu menu = new JMenu("Settings");
+		JMenuItem banMenu = new JMenuItem("Ban list");
+		banWindow(banMenu);
+		menu.add(banMenu);
+		menuBar.add(menu);
+		frame.setJMenuBar(menuBar);
+	}
+
+	private void banWindow(JMenuItem banMenu) {
+		ActionListener actionListener = e -> {
+			try {
+				BanWindow bw = new BanWindow("Ban list", 200, 300, server);
+			} catch (IOException ex) {
+				ex.printStackTrace();
+			} catch (InterruptedException ex) {
+				ex.printStackTrace();
+			}
+		};
+		banMenu.addActionListener(actionListener);
 	}
 
 	public void getUsers() {
@@ -201,6 +227,7 @@ public class MainWindow extends Thread implements Window {
 		setList();
 		setButton();
 		setArea();
+		setMenu();
 		closeWindow();
 		frame.add(panel);
 		frame.pack();

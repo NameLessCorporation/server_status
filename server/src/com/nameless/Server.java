@@ -5,10 +5,7 @@ import com.nameless.elements.Notifications;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -16,7 +13,6 @@ import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.concurrent.ExecutionException;
 
 public class Server extends Thread {
 	private MainWindow mw;
@@ -193,7 +189,18 @@ public class Server extends Thread {
 		Date date = new Date();
 		SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
 		String nowDate = formatter.format(date);
-		mw.logsArea.append(nowDate + "  |  "  + logs + "\n");
+		String log = nowDate + "  |  "  + logs + "\n";
+		mw.logsArea.append(log);
+		FileWriter fw = null;
+		try {
+			fw = new FileWriter("logs.txt", true);
+			BufferedWriter bw = new BufferedWriter(fw);
+			bw.write(log);
+			bw.newLine();
+			bw.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public void banUsers() {
