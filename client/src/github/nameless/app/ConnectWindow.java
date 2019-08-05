@@ -204,7 +204,7 @@ public class ConnectWindow implements Window {
 
 	private void init(String name, int width, int height) {
 		server = new Server();
-		window = new MainWindow("NameLess Server Status - Client", 900, 640);
+		window = new MainWindow("NameLess Server Status - Client", 900, 660);
 		server.setFrame(window);
 		frame = new JFrame(name);
 		setDecoration();

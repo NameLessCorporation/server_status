@@ -1,14 +1,13 @@
 package github.nameless.app;
 
-import javax.swing.JFrame;
-import javax.swing.JList;
-import javax.swing.JPanel;
-import javax.swing.WindowConstants;
+import javax.swing.*;
 import javax.swing.border.LineBorder;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.TextArea;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.BufferedWriter;
@@ -28,6 +27,7 @@ public class MainWindow implements Window{
 	JFrame frame;
 	JPanel panel;
 	JList<String> usersList, ipList;
+	JMenuBar menuBar;
 	Button disconnectButton;
 	Button stopButton, sendButton;
 	Label cpuInfoLabel;
@@ -64,7 +64,7 @@ public class MainWindow implements Window{
 		try {
 			fw = new FileWriter("logs.txt", true);
 			BufferedWriter bw = new BufferedWriter(fw);
-			bw.write(nowDate + "  |  " + log + "\n");
+			bw.write(nowDate + "  |  " + log);
 			bw.newLine();
 			bw.close();
 		} catch (IOException e) {
@@ -154,6 +154,18 @@ public class MainWindow implements Window{
 		panel.add(shellCommand);
 	}
 
+	private void setMenu() {
+		menuBar = new JMenuBar();
+		JMenu helpMenu = new JMenu("Help");
+
+		JMenuItem item = new JMenuItem("About");
+		helpMenu.add(item);
+		menuBar.add(helpMenu);
+		item.addActionListener(e -> new AboutWindow());
+
+		frame.setJMenuBar(menuBar);
+	}
+
 	private void sendRequest(HashMap<String, String> pc, String url) {
 		try {
 			url = "http://" + url + ":" + SERVER_PORT + "?";
@@ -223,6 +235,7 @@ public class MainWindow implements Window{
 		setShellArea();
 		setLogArea();
 		setList();
+		setMenu();
 
 		frame.addWindowListener(new WindowAdapter(){
 			public void windowClosing(WindowEvent e){
