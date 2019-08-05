@@ -96,7 +96,8 @@ public class MainWindow implements Window{
 
 		panel.add(userLabel);
 		panel.add(new Label(250, 110, "Log:"));
-		panel.add(new Label(250, 577, "Command:"));
+		panel.add(new Label(250, 340, "Shell:"));
+		panel.add(new Label(250, 582, "Command:"));
 
 		panel.add(cpuInfoLabel);
 		panel.add(ramInfoLabel);
@@ -108,7 +109,7 @@ public class MainWindow implements Window{
 	public void setButton() {
 		stopButton = new Button(8, 60, 216, 30, "Stop server");
 		disconnectButton = new Button(8, 90, 216, 30, "Disconnect");
-		sendButton = new Button(790, 572, 100, 25, "Send");
+		sendButton = new Button(790, 577, 100, 25, "Send");
 		Button clearLogsButton = new Button(8, 120, 216, 30, "Clear logs");
 		Button clearShellButton = new Button(8, 150, 216, 30, "Clear shell");
 
@@ -121,16 +122,7 @@ public class MainWindow implements Window{
 			log("Trying to disconnect");
 			sendRequest(disconnectRequest, host);
 		});
-		sendButton.addActionListener(e -> {
-			if (! shellCommand.getText().trim().isEmpty()) {
-				HashMap<String, String> shellPackage = new HashMap<>();
-				shellPackage.put("type", "shell");
-				shellPackage.put("user", user);
-				shellPackage.put("data", shellCommand.getText().trim());
-				shellArea.append(">>> " + shellCommand.getText().trim() + "\n");
-				sendRequest(shellPackage, host);
-			}
-		});
+		sendButton.addActionListener(e -> sendShellRequest());
 		clearLogsButton.addActionListener(e -> logArea.setText(""));
 		clearShellButton.addActionListener(e -> shellArea.setText(""));
 
@@ -141,6 +133,17 @@ public class MainWindow implements Window{
 		panel.add(clearShellButton);
 	}
 
+	public void sendShellRequest() {
+		if (!shellCommand.getText().trim().isEmpty()) {
+			HashMap<String, String> shellPackage = new HashMap<>();
+			shellPackage.put("type", "shell");
+			shellPackage.put("user", user);
+			shellPackage.put("data", shellCommand.getText().trim());
+			shellArea.append(">>> " + shellCommand.getText().trim() + "\n");
+			sendRequest(shellPackage, host);
+		}
+	}
+
 	@Override
 	public void setPanel() {
 		panel = new JPanel();
@@ -149,7 +152,17 @@ public class MainWindow implements Window{
 
 	@Override
 	public void setField() {
-		shellCommand = new Field(330, 572, 450, 25);
+		shellCommand = new Field(330, 577, 450, 25);
+
+		Action action = new AbstractAction()
+		{
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				sendShellRequest();
+			}
+		};
+		shellCommand.addActionListener(action);
 
 		panel.add(shellCommand);
 	}
@@ -190,7 +203,7 @@ public class MainWindow implements Window{
 
 	private void setShellArea() {
 		shellArea = new TextArea("", 10, 40);
-		shellArea.setBounds(250, 360, 630, 200);
+		shellArea.setBounds(250, 365, 630, 200);
 		shellArea.setFont(new Font("Arial", Font.PLAIN, 13));
 		shellArea.setEditable(false);
 		panel.add(shellArea);
