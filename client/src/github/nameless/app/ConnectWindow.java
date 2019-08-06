@@ -1,13 +1,8 @@
 package github.nameless.app;
 
-import javax.swing.DefaultListModel;
-import javax.swing.JFrame;
-import javax.swing.JList;
-import javax.swing.JPanel;
-import javax.swing.WindowConstants;
+import javax.swing.*;
 import java.awt.Dimension;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -92,6 +87,13 @@ public class ConnectWindow implements Window {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				if (!connections.isEmpty()) setConnection((String) list.getSelectedValue());
+			}
+		});
+
+		list.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent e) {
+				connect();
 			}
 		});
 
