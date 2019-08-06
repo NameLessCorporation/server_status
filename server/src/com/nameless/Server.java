@@ -9,6 +9,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,12 +22,13 @@ import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Scanner;
 
 public class Server extends Thread {
 	private MainWindow mw;
 	private String password = "";
 	private Boolean shutdown = false;
-	private HashMap<String, String> respons = new HashMap<String, String>();
+	private HashMap<String, String> response = new HashMap<String, String>();
 
 	public String userBan = "";
 	public JList usersList;
@@ -54,13 +57,11 @@ public class Server extends Thread {
 				if (!line.equals("GET /favicon.ico")) {
 					parser(line, server, password, socket);
 					Runnable task = () -> {
-						try {
-							while (!shutdown) {
-								mw.getUsers();
-								sendInfo(socket, password);
-								sendUsersInfo();
-							}
-						} catch (IOException e) {e.printStackTrace();}
+						while (!shutdown) {
+							mw.getUsers();
+							sendInfo(socket, password);
+							sendUsersInfo();
+						}
 					};
 					Thread thread = new Thread(task);
 					thread.start();
@@ -77,17 +78,17 @@ public class Server extends Thread {
 		String[] data;
 		for (String str: dataArray) {
 			data = str.split("=");
-			respons.put(data[0], data[1]);
+			response.put(data[0], data[1]);
 		}
-		for (String k: respons.keySet()) { // I should delete this code
-			System.out.println(respons.get(k));
+		for (String k: response.keySet()) { // I should delete this code
+			System.out.println(response.get(k));
 		}
 		commands(password, server, socket);
 	}
 
-	private void sendInfo(Socket socket, String password) throws IOException {
+	private void sendInfo(Socket socket, String password) {
 		try {
-			String pass = respons.get("pass");
+			String pass = response.get("pass");
 			if (pass.equals(password)) {
 				Status status = new Status();
 				String info = status.statusServer();
@@ -100,21 +101,39 @@ public class Server extends Thread {
 		} catch (Exception e) {disconnectUser();}
 	}
 
+	public void loadListBan() throws IOException {
+		try {
+			usersBanModel.clear();
+			usersList.setModel(usersBanModel);
+			File file = new File("ban_list.txt");
+			Scanner sc = new Scanner(file);
+			while (sc.hasNextLine()) {
+				usersBanModel.addElement(sc.nextLine());
+			}
+		} catch (FileNotFoundException e) {
+			FileWriter writer = new FileWriter("ban_list.txt");
+			writer.write("");
+			writer.flush();
+			writer.close();
+		}
+	}
+
 	private void commands(String password, ServerSocket server, Socket socket) throws IOException {
-		String pass = respons.get("pass");
-		String user = respons.get("user");
-		String type = respons.get("type");
-		String data = respons.get("data");
+		String pass = response.get("pass");
+		String user = response.get("user");
+		String type = response.get("type");
+		String data = response.get("data");
+		String ip = socket.getRemoteSocketAddress().toString().split(":")[0].replace("/", "");
 		if (type.equals("connect") && pass.equals(password) && !users.containsKey(user)) {
-			String ip = socket.getRemoteSocketAddress().toString()
-					.split(":")[0].replace("/", "");
-			if (!users.containsValue(ip)) {
-				users.put(user, ip);
-				setLogs(user + " connected");
+			if (!usersBanModel.contains(user) && !usersBanModel.contains(ip)) {
+				if (!users.containsValue(ip)) {
+					users.put(user, ip);
+					setLogs(user + " connected");
+				}
 			}
 		} else if (type.equals("stopServer") && users.containsKey(user)) {stopServer(false); server.close();
 		} else if (type.equals("disconnect")) {disconnectUser();
-		} else if (type.equals("shell") && pass.equals(password)) {
+		} else if (type.equals("shell") && pass.equals(password) && users.containsKey(user)) {
 			shell(data, user); setLogs(user + " executed a command: " + data);
 		} else {setLogs(user + " tried to sent request");}
 	}
@@ -152,9 +171,9 @@ public class Server extends Thread {
 		}
 	}
 
-	private void disconnectUser() throws IOException {
+	private void disconnectUser() {
 		try {
-			String user = respons.get("user");
+			String user = response.get("user");
 			for (String i : users.keySet()) {
 				if (i.equals(user)) {
 					String url = "http://" + users.get(i) + ":62226?type=disconnected";
@@ -181,7 +200,7 @@ public class Server extends Thread {
 			System.out.println("List users is clear");}
 	}
 
-	private void sendUsersInfo() throws IOException {
+	private void sendUsersInfo() {
 		try {
 			for (String i: users.keySet()) {
 				String url = "http://" + users.get(i) + ":62226?type=users&";
@@ -200,9 +219,13 @@ public class Server extends Thread {
 		String nowDate = formatter.format(date);
 		String log = nowDate + "  |  "  + logs + "\n";
 		mw.logsArea.append(log);
+		toFile(log, "logs.txt");
+	}
+
+	public void toFile(String log, String fileName) {
 		FileWriter fw = null;
 		try {
-			fw = new FileWriter("logs.txt", true);
+			fw = new FileWriter(fileName, true);
 			BufferedWriter bw = new BufferedWriter(fw);
 			bw.write(log);
 			bw.newLine();
@@ -235,10 +258,10 @@ public class Server extends Thread {
 		});
 	}
 
-	public void stopServer(Boolean server) throws IOException {
+	public void stopServer(Boolean server) {
 		try {
 			shutdown = true;
-			String user = respons.get("user");
+			String user = response.get("user");
 			Notifications n = new Notifications();
 			mw.s.setText("Status: server was stopped");
 			if (server) {

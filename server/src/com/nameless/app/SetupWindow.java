@@ -25,6 +25,11 @@ public class SetupWindow implements Window {
 
 	public void checkConnection(Boolean isEnter, String passwordServer) {
 		if (isEnter) {
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 			frame.setVisible(false);
 			mw.frame.setVisible(true);
 		}

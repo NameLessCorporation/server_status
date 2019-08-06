@@ -137,6 +137,11 @@ public class MainWindow extends Thread implements Window {
 	private void banWindow(JMenuItem banMenu) {
 		ActionListener actionListener = e -> {
 			BanWindow bw = new BanWindow("Ban list", 200, 280, server);
+			try {
+				server.loadListBan();
+			} catch (IOException ex) {
+				ex.printStackTrace();
+			}
 			server.usersList.setModel(server.usersBanModel);
 		};
 		banMenu.addActionListener(actionListener);
@@ -153,7 +158,6 @@ public class MainWindow extends Thread implements Window {
 				usersModel.add(j, i);
 				j++;
 			}
-			Thread.sleep(3000);
 			usersList.setModel(usersModel);
 			ipList.setModel(ipModel);
 		} catch (Exception e) {
@@ -166,6 +170,10 @@ public class MainWindow extends Thread implements Window {
 		ActionListener actionListener = e -> {
 			Integer len = server.usersBanModel.size();
 			server.usersBanModel.add(len, server.userBan);
+			server.toFile(server.userBan, "ban_list.txt");
+			userDisconnect();
+			ipLabel.setText("IP: ");
+			usersLabel.setText("Users:");
 		};
 		add.addActionListener(actionListener);
 	}
@@ -176,50 +184,48 @@ public class MainWindow extends Thread implements Window {
 	}
 
 	public void disconnect(Button add) {
-		Notifications n = new Notifications();
 		ActionListener actionListener = e -> {
-			if (!server.userBan.isEmpty()) {
-				for (String i : server.users.keySet()) {
-					if(server.users.containsKey(server.userBan)) {
-						server.users.remove(server.userBan);
-						server.setLogs(server.userBan + " was disconnected");
-						n.showInfoNotification("User disconnect",
-								server.userBan + " disconnect from server");
-						usersLabel.setText("Users: ");
-					} else if (server.users.containsValue(server.userBan)) {
-						for (String j : server.users.keySet()) {
-							if (server.userBan.equals(server.users.get(j))) {
-								server.users.remove(j);
-								server.setLogs(server.userBan + " was disconnected");
-								n.showInfoNotification("User disconnect",
-										server.userBan + " disconnect from server");
-								usersLabel.setText("IP: ");
-							}
+			userDisconnect();
+		};
+		add.addActionListener(actionListener);
+	}
+
+	private void userDisconnect() {
+		Notifications n = new Notifications();
+		if (!server.userBan.isEmpty()) {
+			for (String i : server.users.keySet()) {
+				if(server.users.containsKey(server.userBan)) {
+					server.users.remove(server.userBan);
+					server.setLogs(server.userBan + " was disconnected");
+					n.showInfoNotification("User disconnect",
+							server.userBan + " disconnect from server");
+					usersLabel.setText("Users: ");
+				} else if (server.users.containsValue(server.userBan)) {
+					for (String j : server.users.keySet()) {
+						if (server.userBan.equals(server.users.get(j))) {
+							server.users.remove(j);
+							server.setLogs(server.userBan + " was disconnected");
+							n.showInfoNotification("User disconnect",
+									server.userBan + " disconnect from server");
+							usersLabel.setText("Users: ");
 						}
 					}
 				}
 			}
-		};
-		add.addActionListener(actionListener);
+		}
 	}
 
 	public void closeWindow() {
 		frame.addWindowListener(new WindowAdapter(){
 			public void windowClosing(WindowEvent e){
-				try {
-					server.stopServer(true);
-				} catch (IOException ex) {}
+				server.stopServer(true);
 			}
 		});
 	}
 
 	public void stop(Button add) {
 		ActionListener actionListener = e -> {
-			try {
-				server.stopServer(true);
-			} catch (IOException ex) {
-				ex.printStackTrace();
-			}
+			server.stopServer(true);
 		};
 		add.addActionListener(actionListener);
 	}
