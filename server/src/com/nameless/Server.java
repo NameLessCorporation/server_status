@@ -5,8 +5,10 @@ import com.nameless.elements.Notifications;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JList;
+import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -74,16 +76,19 @@ public class Server extends Thread {
 	}
 
 	private void parser(String request, ServerSocket server, String password, Socket socket) throws IOException {
-		String[] dataArray = request.split("&");
-		String[] data;
-		for (String str: dataArray) {
-			data = str.split("=");
-			response.put(data[0], data[1]);
-		}
-		for (String k: response.keySet()) { // I should delete this code
-			System.out.println(response.get(k));
-		}
-		commands(password, server, socket);
+		try {
+			String[] dataArray = request.split("&");
+			String[] data;
+			for (String str: dataArray) {
+				data = str.split("=");
+				response.put(data[0], data[1]);
+			}
+			for (String k: response.keySet()) { // I should delete this code
+				System.out.println(response.get(k));
+			}
+			commands(password, server, socket);
+		} catch (ArrayIndexOutOfBoundsException e) {}
+
 	}
 
 	private void sendInfo(Socket socket, String password) {
@@ -134,8 +139,50 @@ public class Server extends Thread {
 		} else if (type.equals("stopServer") && users.containsKey(user)) {stopServer(false); server.close();
 		} else if (type.equals("disconnect")) {disconnectUser();
 		} else if (type.equals("shell") && pass.equals(password) && users.containsKey(user)) {
-			shell(data, user); setLogs(user + " executed a command: " + data);
+			shell(data, user);
+			setLogs(user + " executed a command: " + data);
+		} else if (type.equals("screen") && users.containsKey(user)) { sendScreen(ip);
 		} else {setLogs(user + " tried to sent request");}
+	}
+
+	private void sendScreen(String ip) {
+		try {
+			BufferedImage bufimage = new
+					Robot().createScreenCapture(new Rectangle(Toolkit.getDefaultToolkit().getScreenSize()));
+			String url = "http://" + ip + ":62226/?type=imageData&width=" +
+					bufimage.getWidth() + "&height=" + bufimage.getHeight();
+			URL serv = new URL(url);
+			InputStream iss = serv.openStream();
+			URL server = new URL(genStr(bufimage.getWidth(), bufimage.getHeight(), bufimage, ip));
+			InputStream is = server.openStream();
+		} catch (IOException | AWTException ex) {
+			ex.printStackTrace();
+		}
+	}
+
+	private int[] getColor(BufferedImage image, int x, int y) {
+		int clr =  image.getRGB(x, y);
+		int red = (clr & 0x00ff0000) >> 16;
+		int green = (clr & 0x0000ff00) >> 8;
+		int blue = clr & 0x000000ff;
+		return new int[]{red, green, blue};
+	}
+
+	private String genStr(int width, int height, BufferedImage image, String ip) {
+		StringBuilder url = new StringBuilder("http://" + ip + ":62226?type=image&");
+		StringBuilder red = new StringBuilder("r=");
+		StringBuilder green = new StringBuilder("g=");
+		StringBuilder blue = new StringBuilder("b=");
+		for (int j = 0; j < width; j++) {
+			for (int i = 0; i < height; i++) {
+				int[] color = getColor(image, j, i);
+				red.append(color[0] + ",");
+				green.append(color[1] + ",");
+				blue.append(color[2] + ",");
+			}
+		}
+		url.append(red.toString() + "&" + green.toString() + "&" + blue.toString());
+		return url.toString();
 	}
 
 	private void shell(String data, String user) {

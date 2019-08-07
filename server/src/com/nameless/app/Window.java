@@ -5,7 +5,7 @@ import java.io.IOException;
 
 public interface Window {
 	public void setLabel() throws IOException;
-	public void setButton();
+	public void setButton() throws IOException;
 	public void setPanel();
 	public void setField();
 	public default void setDecoration() {
