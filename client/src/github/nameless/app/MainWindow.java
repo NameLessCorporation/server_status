@@ -29,11 +29,12 @@ public class MainWindow implements Window{
 	JList<String> usersList, ipList;
 	JMenuBar menuBar;
 	Button disconnectButton;
-	Button stopButton, sendButton;
+	Button stopButton, sendButton, getScreenButton;
 	Label cpuInfoLabel;
 	Label ramInfoLabel;
 	Label netInfoLabel;
 	Label statusLabel;
+	JLabel imageLabel;
 	TextArea logArea, shellArea;
 	String host, user;
 	Field shellCommand;
@@ -43,6 +44,7 @@ public class MainWindow implements Window{
 
 	private HashMap<String, String> disconnectRequest = new HashMap<>();
 	private HashMap<String, String> stopRequest = new HashMap<>();
+	private HashMap<String, String> getScreenRequest = new HashMap<>();
 
 	public MainWindow(String name, Integer width, Integer height) {
 		init(name, width, height);
@@ -90,9 +92,9 @@ public class MainWindow implements Window{
 		ramInfoLabel = new Label(250, 35, "RAM:");
 		netInfoLabel = new Label(250, 60, "Internet:");
 		statusLabel = new Label(250, 85, "Status: not connected");
-		Label userLabel = new Label(8, 290, "Users:");
+		Label userLabel = new Label(8, 320, "Users:");
 
-		userLabel.setBounds(8, 190, 100, 15);
+		userLabel.setBounds(8, 220, 100, 15);
 
 		panel.add(userLabel);
 		panel.add(new Label(250, 110, "Log:"));
@@ -107,12 +109,12 @@ public class MainWindow implements Window{
 
 	@Override
 	public void setButton() {
-		stopButton = new Button(8, 60, 216, 30, "Stop server");
-		disconnectButton = new Button(8, 90, 216, 30, "Disconnect");
+		stopButton = new Button(53, 60, 120, 32, "Stop server");
+		disconnectButton = new Button(53, 90, 120, 32, "Disconnect");
 		sendButton = new Button(790, 577, 100, 25, "Send");
-		Button clearLogsButton = new Button(8, 120, 216, 30, "Clear logs");
-		Button clearShellButton = new Button(8, 150, 216, 30, "Clear shell");
-
+		Button clearLogsButton = new Button(53, 120, 120, 32, "Clear logs");
+		Button clearShellButton = new Button(53, 150, 120, 32, "Clear shell");
+		getScreenButton = new Button(53, 180, 120, 32, "Get screenshot");
 
 		stopButton.addActionListener(e -> {
 			log("Trying to stopping server");
@@ -125,12 +127,17 @@ public class MainWindow implements Window{
 		sendButton.addActionListener(e -> sendShellRequest());
 		clearLogsButton.addActionListener(e -> logArea.setText(""));
 		clearShellButton.addActionListener(e -> shellArea.setText(""));
+		getScreenButton.addActionListener(e -> {
+			log("Trying to get screenshot");
+			sendRequest(getScreenRequest, host);
+		});
 
 		panel.add(sendButton);
 		panel.add(stopButton);
 		panel.add(disconnectButton);
 		panel.add(clearLogsButton);
 		panel.add(clearShellButton);
+		panel.add(getScreenButton);
 	}
 
 	public void sendShellRequest() {
@@ -140,6 +147,7 @@ public class MainWindow implements Window{
 			shellPackage.put("user", user);
 			shellPackage.put("data", shellCommand.getText().trim());
 			shellArea.append(">>> " + shellCommand.getText().trim() + "\n");
+			shellCommand.setText("");
 			sendRequest(shellPackage, host);
 		}
 	}
@@ -211,13 +219,13 @@ public class MainWindow implements Window{
 
 	private void setList() {
 		usersList = new JList();
-		usersList.setBounds(8, 212, 108, 300);
+		usersList.setBounds(8, 242, 108, 300);
 		usersList.setBorder(new LineBorder(Color.BLACK));
 		usersList.setSelectionMode(0);
 		panel.add(usersList);
 
 		ipList = new JList();
-		ipList.setBounds(116, 212, 108, 300);
+		ipList.setBounds(116, 242, 108, 300);
 		ipList.setBorder(new LineBorder(Color.BLACK));
 		ipList.setSelectionMode(0);
 		panel.add(ipList);
@@ -229,6 +237,9 @@ public class MainWindow implements Window{
 
 		stopRequest.put("type", "stopServer");
 		stopRequest.put("user", user);
+
+		getScreenRequest.put("type", "screen");
+		getScreenRequest.put("user", user);
 	}
 
 	public void setServer(Server server) {

@@ -1,6 +1,8 @@
 package github.nameless.app;
 
-import javax.swing.DefaultListModel;
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,6 +14,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Objects;
+import java.util.Random;
 
 public class Server extends Thread {
 
@@ -22,6 +25,9 @@ public class Server extends Thread {
 	boolean disconnected = false;
 	ServerSocket server = null;
 	HashMap<String, String> connectRequest;
+	BufferedImage image = new BufferedImage(50, 50, BufferedImage.TYPE_INT_RGB);
+	int imageWidth, imageHeight;
+	ScreenWindow screenWindow;
 
 	public void setConnectRequest(HashMap<String, String> connectRequest) {
 		this.connectRequest = connectRequest;
@@ -148,6 +154,48 @@ public class Server extends Thread {
 						result = result.replace("()n", "\n");
 						frame.shellArea.append(result + "\n");
 					}
+					break;
+				}
+				case "image": {
+					String[] red = data.get("r").split(",");
+					String[] green = data.get("g").split(",");
+					String[] blue = data.get("b").split(",");
+
+//					int y = Integer.parseInt(data.get("y"));
+					int count = 0;
+
+					for (int i = 0; i < imageWidth; i++) {
+						for (int j = 0; j < imageHeight; j++) {
+							int r = Integer.parseInt(red[count]);
+							int g = Integer.parseInt(green[count]);
+							int b = Integer.parseInt(blue[count]);
+							int p = (255<<24) | (r<<16) | (g<<8) | b;
+							image.setRGB(i, j, p);
+							count++;
+						}
+					}
+					ImageIcon icon = new ImageIcon(image);
+					screenWindow.imageLabel.setIcon(icon);
+
+//					int x = Integer.parseInt(data.get("x"));
+//					int y = Integer.parseInt(data.get("y"));
+//					int r = Integer.parseInt(data.get("r"));
+//					int g = Integer.parseInt(data.get("g"));
+//					int b = Integer.parseInt(data.get("b"));
+//
+//					int p = (255<<24) | (r<<16) | (g<<8) | b;
+//					image.setRGB(x, y, p);
+//					ImageIcon icon = new ImageIcon(image);
+//					frame.imageLabel.setIcon(icon);
+					break;
+				}
+				case "imageData": {
+					imageWidth = Integer.parseInt(data.get("width"));
+					imageHeight = Integer.parseInt(data.get("height"));
+					image = new BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_INT_RGB);
+					screenWindow = new ScreenWindow(imageWidth, imageHeight);
+					screenWindow.imageLabel.setBounds(0, 0, imageWidth, imageHeight);
+					frame.log("Screenshot was received");
 					break;
 				}
 				case "command": {
