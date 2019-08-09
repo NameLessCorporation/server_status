@@ -33,7 +33,6 @@ public class ScreenWindow implements Window {
 	@Override
 	public void setPanel() {
 		panel = new JPanel();
-		panel.setBackground(new Color(20, 118, 91));
 		frame.getContentPane().add(panel);
 	}
 
@@ -55,8 +54,5 @@ public class ScreenWindow implements Window {
 
 		frame.add(panel);
 		frame.pack();
-		frame.setResizable(false);
-		frame.setLocationRelativeTo(null);
-		frame.setVisible(true);
 	}
 }

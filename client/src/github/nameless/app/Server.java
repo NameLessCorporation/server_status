@@ -2,16 +2,15 @@ package github.nameless.app;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.Random;
@@ -157,25 +156,60 @@ public class Server extends Thread {
 					break;
 				}
 				case "image": {
-					String[] red = data.get("r").split(",");
-					String[] green = data.get("g").split(",");
-					String[] blue = data.get("b").split(",");
 
-//					int y = Integer.parseInt(data.get("y"));
-					int count = 0;
-
-					for (int i = 0; i < imageWidth; i++) {
-						for (int j = 0; j < imageHeight; j++) {
-							int r = Integer.parseInt(red[count]);
-							int g = Integer.parseInt(green[count]);
-							int b = Integer.parseInt(blue[count]);
-							int p = (255<<24) | (r<<16) | (g<<8) | b;
-							image.setRGB(i, j, p);
-							count++;
-						}
+					String img = data.get("data");
+					BufferedImage image = null;
+					try {
+						image = ImageIO.read(new ByteArrayInputStream(Base64.getDecoder().decode(img)));
+					} catch (IOException e) {
+						e.printStackTrace();
 					}
+
+					Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+
+					double xScale = 0.95;
+					double yScale = 0.95;
+
+					if (screenSize.getWidth() <= imageWidth) {
+						xScale = ((screenSize.getWidth()) / imageWidth * 1.0d) - 0.05;
+					}
+					if (screenSize.getHeight() <= imageHeight) {
+						yScale = ((screenSize.getHeight()) / imageHeight * 1.0d) - 0.05;
+					}
+
+					if (xScale < yScale) {
+						int newWidth = new Double(image.getWidth() * xScale).intValue();
+						int newHeight = new Double(image.getHeight() * xScale).intValue();
+						image = resize(image, newWidth, newHeight);
+						screenWindow.frame.setSize(new Dimension(newWidth, newHeight));
+					} else {
+						int newWidth = new Double(image.getWidth() * yScale).intValue();
+						int newHeight = new Double(image.getHeight() * yScale).intValue();
+						image = resize(image, newWidth, newHeight);
+						screenWindow.frame.setSize(new Dimension(newWidth, newHeight));
+					}
+
+//					String[] red = data.get("r").split(",");
+//					String[] green = data.get("g").split(",");
+//					String[] blue = data.get("b").split(",");
+//
+////					int y = Integer.parseInt(data.get("y"));
+//					int count = 0;
+//
+//					for (int i = 0; i < imageWidth; i++) {
+//						for (int j = 0; j < imageHeight; j++) {
+//							int r = Integer.parseInt(red[count]);
+//							int g = Integer.parseInt(green[count]);
+//							int b = Integer.parseInt(blue[count]);
+//							int p = (255<<24) | (r<<16) | (g<<8) | b;
+//							image.setRGB(i, j, p);
+//							count++;
+//						}
+//					}
 					ImageIcon icon = new ImageIcon(image);
 					screenWindow.imageLabel.setIcon(icon);
+					screenWindow.frame.setLocationRelativeTo(null);
+					screenWindow.frame.setVisible(true);
 
 //					int x = Integer.parseInt(data.get("x"));
 //					int y = Integer.parseInt(data.get("y"));
@@ -192,6 +226,7 @@ public class Server extends Thread {
 				case "imageData": {
 					imageWidth = Integer.parseInt(data.get("width"));
 					imageHeight = Integer.parseInt(data.get("height"));
+
 					image = new BufferedImage(imageWidth, imageHeight, BufferedImage.TYPE_INT_RGB);
 					screenWindow = new ScreenWindow(imageWidth, imageHeight);
 					screenWindow.imageLabel.setBounds(0, 0, imageWidth, imageHeight);
@@ -204,6 +239,17 @@ public class Server extends Thread {
 				}
 			}
 		}
+	}
+
+	public BufferedImage resize(BufferedImage img, int newW, int newH) {
+		Image tmp = img.getScaledInstance(newW, newH, Image.SCALE_SMOOTH);
+		BufferedImage dimg = new BufferedImage(newW, newH, BufferedImage.TYPE_INT_ARGB);
+
+		Graphics2D g2d = dimg.createGraphics();
+		g2d.drawImage(tmp, 0, 0, null);
+		g2d.dispose();
+
+		return dimg;
 	}
 
 	private void execute(HashMap<String, String> data) {
