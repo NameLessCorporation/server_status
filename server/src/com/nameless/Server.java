@@ -3,14 +3,19 @@ package com.nameless;
 import com.nameless.app.MainWindow;
 import com.nameless.elements.Notifications;
 
+import javax.imageio.ImageIO;
 import javax.swing.DefaultListModel;
 import javax.swing.JList;
-import java.awt.*;
+import java.awt.AWTException;
+import java.awt.Rectangle;
+import java.awt.Robot;
+import java.awt.Toolkit;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
@@ -22,6 +27,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URL;
 import java.text.SimpleDateFormat;
+import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Scanner;
@@ -153,7 +159,12 @@ public class Server extends Thread {
 					bufimage.getWidth() + "&height=" + bufimage.getHeight();
 			URL serv = new URL(url);
 			InputStream iss = serv.openStream();
-			URL server = new URL(genStr(bufimage.getWidth(), bufimage.getHeight(), bufimage, ip));
+
+			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+			ImageIO.write(bufimage, "jpg", outputStream);
+			String img = Base64.getEncoder().encodeToString(outputStream.toByteArray());
+
+			URL server = new URL("http://" + ip + ":62226/?type=image&data=" + img);
 			InputStream is = server.openStream();
 		} catch (IOException | AWTException ex) {
 			ex.printStackTrace();
